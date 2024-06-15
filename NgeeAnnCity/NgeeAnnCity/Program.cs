@@ -106,7 +106,7 @@ namespace Arcade
         static void PlaceBuilding(char building)
         {
             int x, y;
-            do
+            while (true)
             {
                 Console.WriteLine("Enter the row (0-19) to place the building:");
                 x = int.Parse(Console.ReadLine());
@@ -118,13 +118,16 @@ namespace Arcade
                     continue;
                 }
 
-                if (board[x, y] != '.')
+                else if (board[x, y] != '.')
                 {
                     Console.WriteLine("Spot taken! Try another.");
                 }
-            } while (x < 0 || x >= 20 || y < 0 || y >= 20 || board[x, y] != '.');
-
-            board[x, y] = building;
+                else
+                {
+                    board[x, y] = building;
+                    break;
+                }
+            }
         }
 
         static void DisplayBoard()
