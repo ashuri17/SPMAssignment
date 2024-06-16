@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Arcade
+namespace Arcade1
 {
-    class Program
+    public class Arcade
     {
         static Random random = new Random();
         static char[,] board = new char[20, 20];
@@ -12,7 +12,7 @@ namespace Arcade
         static int points = 0;
         static List<string> buildings = new List<string> { "Residential", "Industry", "Commercial", "Park", "Road" };
 
-        static void Main(string[] args)
+        public void Start()
         {
             InitializeBoard();
             PlayGame();
