@@ -5,12 +5,12 @@ namespace NgeeAnnCity
 {
     public class Arcade
     {
-        static Random random = new Random();
-        static char[,] board = new char[20, 20];
-        static int turnNumber = 0;
-        static int coins = 100;
-        static int points = 0;
-        static List<string> buildings = new List<string> { "Residential", "Industry", "Commercial", "Park", "Road" };
+        private Random random = new Random();
+        private char[,] board = new char[20, 20];
+        private int turnNumber = 0;
+        private int coins = 100;
+        private int points = 0;
+        private List<string> buildings = new List<string> { "Residential", "Industry", "Commercial", "Park", "Road" };
 
         public void Start()
         {
@@ -18,7 +18,7 @@ namespace NgeeAnnCity
             PlayGame();
         }
 
-        static void InitializeBoard()
+        private void InitializeBoard()
         {
             for (int i = 0; i < 20; i++)
             {
@@ -29,7 +29,7 @@ namespace NgeeAnnCity
             }
         }
 
-        static void PlayGame()
+        private void PlayGame()
         {
             while (coins > 0)
             {
@@ -59,7 +59,7 @@ namespace NgeeAnnCity
             Console.WriteLine("Game over! You've run out of coins.");
         }
 
-        static List<string> SelectBuildings()
+        private List<string> SelectBuildings()
         {
             List<string> selectedBuildings = new List<string>();
             while (selectedBuildings.Count < 2)
@@ -73,7 +73,7 @@ namespace NgeeAnnCity
             return selectedBuildings;
         }
 
-        static string GetPlayerChoice(List<string> selectedBuildings)
+        private string GetPlayerChoice(List<string> selectedBuildings)
         {
             Console.WriteLine("Choose a building to construct:");
             for (int i = 0; i < selectedBuildings.Count; i++)
@@ -90,7 +90,7 @@ namespace NgeeAnnCity
             return selectedBuildings[choice - 1];
         }
 
-        static char GetBuildingSymbol(string building)
+        private char GetBuildingSymbol(string building)
         {
             return building switch
             {
@@ -103,7 +103,7 @@ namespace NgeeAnnCity
             };
         }
 
-        static void PlaceBuilding(char building)
+        private void PlaceBuilding(char building)
         {
             int x, y;
             while (true)
@@ -130,7 +130,7 @@ namespace NgeeAnnCity
             }
         }
 
-        static void DisplayBoard()
+        private void DisplayBoard()
         {
             for (int i = 0; i < 20; i++)
             {
@@ -142,14 +142,14 @@ namespace NgeeAnnCity
             }
         }
 
-        static void DisplayStats()
+        private void DisplayStats()
         {
             Console.WriteLine($"Turn: {turnNumber}");
             Console.WriteLine($"Coins left: {coins}");
             Console.WriteLine($"Points: {points}");
         }
 
-        static void DisplaySelectedBuildings(List<string> selectedBuildings)
+        private void DisplaySelectedBuildings(List<string> selectedBuildings)
         {
             Console.WriteLine("Selected buildings for this turn:");
             foreach (string building in selectedBuildings)
@@ -158,14 +158,14 @@ namespace NgeeAnnCity
             }
         }
 
-        static void CalculatePointsAndCoins()
+        private void CalculatePointsAndCoins()
         {
             // Placeholder for actual scoring logic
             points += 5; // Example increment
             coins += 5;  // Example increment
         }
 
-        static void CalculateUpkeepCosts()
+        private void CalculateUpkeepCosts()
         {
             // Placeholder for actual upkeep cost calculation
             coins -= 10; // Example decrement
