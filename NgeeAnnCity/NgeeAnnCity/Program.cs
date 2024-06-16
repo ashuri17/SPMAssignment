@@ -1,5 +1,4 @@
-﻿using Arcade1;
-using ViewHighScores;
+﻿using NgeeAnnCity;
 static void MainMenu()
 {
     // title of App
@@ -37,7 +36,7 @@ while (true)
         }
         else if (option == 2)
         {
-
+            StartNewFreePlayGame();
         }
         else if (option == 3)
         {
@@ -48,7 +47,7 @@ while (true)
             HighScores highScores = new HighScores();
             highScores.Start();
         }
-        else if (option == 0) // Use 0 to exit the loop and program
+        else if (option == 5)
         {
             Console.WriteLine("Exiting the game. Goodbye!");
             break;
@@ -62,4 +61,9 @@ while (true)
     {
         Console.WriteLine("Invalid input. Please enter a number.");
     }
+}
+void StartNewFreePlayGame()
+{
+    FreePlayGame game = new FreePlayGame();
+    game.Play();
 }

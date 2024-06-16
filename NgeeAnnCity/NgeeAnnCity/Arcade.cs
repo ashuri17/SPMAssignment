@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Arcade1
+namespace NgeeAnnCity
 {
     public class Arcade
     {
