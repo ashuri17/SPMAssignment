@@ -5,12 +5,12 @@ namespace NgeeAnnCity
 {
     public class HighScores
     {
-        public void Start()
+        public static void Start()
         {
             ViewArcade();
             ViewFreePlay();
         }
-        void ViewArcade()
+        public static void ViewArcade()
         {
             string[] highScoreFile = File.ReadAllLines("arcadehighscores.csv");
             int nameColumnWidth = 9;
@@ -40,7 +40,7 @@ namespace NgeeAnnCity
             // Bottom border
             Console.WriteLine(new string('-', totalWidth));
         }
-        void ViewFreePlay()
+        public static void ViewFreePlay()
         {
             string[] highScoreFile = File.ReadAllLines("freeplayhighscores.csv");
             int nameColumnWidth = 9;
