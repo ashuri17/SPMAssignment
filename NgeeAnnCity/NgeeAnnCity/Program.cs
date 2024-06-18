@@ -1,62 +1,63 @@
-﻿
-ViewArcade();
-ViewFreePlay();
+﻿using NgeeAnnCity;
 
-void ViewArcade()
+
+StartNgeeAnnCity();
+void StartNgeeAnnCity()
 {
-    string[] highScoreFile = File.ReadAllLines("arcadehighscores.csv");
-    int nameColumnWidth = 9;
-    int scoreColumnWidth = 11;
-    int totalWidth = nameColumnWidth + scoreColumnWidth + 3; // +3 for the spaces and borders
-
-    // Top border
- 
-    Console.WriteLine(new string('-', totalWidth + 1));
-
-    // Title inside the box
-    Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Game Mode: Arcade");
-    Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Top 10 Highest Scores");
-    Console.WriteLine(new string('-', totalWidth + 1));
-
-
-    // Header
-    Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", "Name", "High Score");
-
-    // Scores
-    for (int i = 0; i < highScoreFile.Length; i++)
+    while (true)
     {
-        string[] highScore = highScoreFile[i].Split(',');
-        Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", highScore[0], highScore[1]);
-    }
+        MainMenu();
+        Console.Write("\n\n\nPick option (1-5): ");
 
-    // Bottom border
-    Console.WriteLine(new string('-', totalWidth));
+        switch (Console.ReadLine())
+        {
+            case "1":
+                new Arcade().Start();
+                break;
+
+            case "2":
+                new FreePlayGame().Start();
+                break;
+
+            case "3":
+                break;
+
+            case "4":
+                HighScores.Start();
+                break;
+
+            case "5":
+                Console.WriteLine("Exiting Ngee Ann City...");
+                Thread.Sleep(700);
+                Console.WriteLine("Goodbye!\n");
+                return;
+
+            default:
+                // User entered a number that is not valid as an option
+                Console.WriteLine("\nInvalid option");
+                break;
+        }
+    }
 }
-void ViewFreePlay()
+
+void MainMenu()
 {
-    string[] highScoreFile = File.ReadAllLines("freeplayhighscores.csv");
-    int nameColumnWidth = 9;
-    int scoreColumnWidth = 11;
-    int totalWidth = nameColumnWidth + scoreColumnWidth + 3; // +3 for the spaces and borders
+    // title of App
+    string title = "NGEE ANN CITY";
 
-    // Top border
-    Console.WriteLine(new string('-', totalWidth + 1));
+    // add items into menu
+    List<string> menuItems = [];
+    menuItems.Add("1. New Arcade Game");
+    menuItems.Add("2. New Free Play Game");
+    menuItems.Add("3. Load Saved Game");
+    menuItems.Add("4. Display Highscores");
+    menuItems.Add("5. Exit App");
 
-    // Title inside the box
-    Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Game Mode: Free Play");
-    Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Top 10 Highest Scores");
-    Console.WriteLine(new string('-', totalWidth + 1));
+    // get padding to center title when printing
+    string padding = new string(' ', (int)Math.Floor((double)(menuItems.Max(i => i.Length) - title.Length) / 2));
 
-
-    // Header
-    Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", "Name", "High Score");
-
-    // Scores
-    for (int i = 0; i < highScoreFile.Length; i++)
-    {
-        string[] highScore = highScoreFile[i].Split(',');
-        Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", highScore[0], highScore[1]);
-    }
-    // Bottom border
-    Console.WriteLine(new string('-', totalWidth + 1));
+    // print title + menu
+    Console.WriteLine(padding + title);
+    Console.WriteLine(new string('-', menuItems.Max(i => i.Length)) + "\n");
+    menuItems.ForEach(i => Console.WriteLine(i));
 }
