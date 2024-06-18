@@ -55,7 +55,6 @@ namespace NgeeAnnCity
 
                 // Select two random buildings
                 List<string> selectedBuildings = SelectBuildings();
-                
 
                 // Get player choice
                 string chosenBuilding = GetPlayerChoice(selectedBuildings);
@@ -90,7 +89,7 @@ namespace NgeeAnnCity
 
         private string GetPlayerChoice(List<string> selectedBuildings)
         {
-            Console.WriteLine("Choose a building to construct:");
+            Console.WriteLine("Choose a building to construct (1/2):");
             for (int i = 0; i < selectedBuildings.Count; i++)
             {
                 Console.WriteLine($"{i + 1}. {selectedBuildings[i]}");
