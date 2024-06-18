@@ -1,5 +1,47 @@
 ﻿using NgeeAnnCity;
-static void MainMenu()
+
+
+
+StartNgeeAnnCity();
+void StartNgeeAnnCity()
+{
+    while (true)
+    {
+        MainMenu();
+        Console.Write("\n\n\nPick option (1-5): ");
+
+        switch (Console.ReadLine())
+        {
+            case "1":
+                new Arcade().Start();
+                break;
+
+            case "2":
+                new FreePlayGame().Start();
+                break;
+
+            case "3":
+                break;
+
+            case "4":
+                HighScores.Start();
+                break;
+
+            case "5":
+                Console.WriteLine("Exiting Ngee Ann City...");
+                Thread.Sleep(700);
+                Console.WriteLine("Goodbye!\n");
+                return;
+
+            default:
+                // User entered a number that is not valid as an option
+                Console.WriteLine("\nInvalid option");
+                break;
+        }
+    }
+}
+
+void MainMenu()
 {
     // title of App
     string title = "NGEE ANN CITY";
@@ -19,51 +61,4 @@ static void MainMenu()
     Console.WriteLine(padding + title);
     Console.WriteLine(new string('-', menuItems.Max(i => i.Length)) + "\n");
     menuItems.ForEach(i => Console.WriteLine(i));
-}
-
-while (true)
-{
-    MainMenu();
-    Console.Write("Pick option (1-5): ");
-    string userInput = Console.ReadLine();
-
-    if (int.TryParse(userInput, out int option))
-    {
-        if (option == 1)
-        {
-            Arcade arcadeGame = new Arcade();
-            arcadeGame.Start();
-        }
-        else if (option == 2)
-        {
-            StartNewFreePlayGame();
-        }
-        else if (option == 3)
-        {
-
-        }
-        else if (option == 4)
-        {
-            HighScores highScores = new HighScores();
-            highScores.Start();
-        }
-        else if (option == 5)
-        {
-            Console.WriteLine("Exiting the game. Goodbye!");
-            break;
-        }
-        else
-        {
-            Console.WriteLine("Invalid option. Please pick a number between 1 and 5.");
-        }
-    }
-    else
-    {
-        Console.WriteLine("Invalid input. Please enter a number.");
-    }
-}
-void StartNewFreePlayGame()
-{
-    FreePlayGame game = new FreePlayGame();
-    game.Play();
 }
