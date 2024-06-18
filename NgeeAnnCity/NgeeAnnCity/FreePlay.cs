@@ -11,11 +11,16 @@
 
         public FreePlayGame()
         {
-            InitializeGrid();
             coins = 0;
             score = 0;
             profit = 0;
             upkeep = 0;
+        }
+
+        public void Start()
+        {
+            InitializeGrid();
+            PlayGame();
         }
 
         private void InitializeGrid()
@@ -30,7 +35,7 @@
             }
         }
 
-        public void Play()
+        public void PlayGame()
         {
             int turn = 1;
             while (true)
