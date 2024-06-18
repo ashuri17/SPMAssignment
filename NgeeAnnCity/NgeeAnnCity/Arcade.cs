@@ -5,12 +5,26 @@ namespace NgeeAnnCity
 {
     public class Arcade
     {
-        private Random random = new Random();
-        private char[,] board = new char[20, 20];
-        private int turnNumber = 0;
-        private int coins = 100;
-        private int points = 0;
-        private List<string> buildings = new List<string> { "Residential", "Industry", "Commercial", "Park", "Road" };
+        private int height;
+        private int width;
+        private char[,] board;
+        private int turnNumber;
+        private int coins;
+        private int points;
+        private string[] buildings;
+        private Random random;
+
+        public Arcade()
+        { 
+            this.height = 20;
+            this.width = 20;
+            this.board = new char[height, width];
+            this.turnNumber = 0;
+            this.coins = 100;
+            this.points = 0;
+            this.buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" } ;
+            this.random = new Random();
+        }
 
         public void Start()
         {
@@ -65,7 +79,7 @@ namespace NgeeAnnCity
             List<string> selectedBuildings = new List<string>();
             while (selectedBuildings.Count < 2)
             {
-                string building = buildings[random.Next(buildings.Count)];
+                string building = buildings[random.Next(buildings.Length)];
                 if (!selectedBuildings.Contains(building))
                 {
                     selectedBuildings.Add(building);
@@ -154,6 +168,9 @@ namespace NgeeAnnCity
 
         private void DisplayBoard()
         {
+            // get width of board 
+
+            // get height of board
             for (int i = 0; i < 20; i++)
             {
                 for (int j = 0; j < 20; j++)
