@@ -106,21 +106,42 @@ namespace NgeeAnnCity
         private void PlaceBuilding(char building)
         {
             int x, y;
+
+            // runs until a building is placed
             while (true)
             {
-                Console.WriteLine("Enter the row (0-19) to place the building:");
-                x = int.Parse(Console.ReadLine());
-                Console.WriteLine("Enter the column (0-19) to place the building:");
-                y = int.Parse(Console.ReadLine());
-                if (x < 0 || x >= 20 || y < 0 || y >= 20)
+                // get row from user
+                while (true)
                 {
-                    Console.WriteLine("Invalid position! Please enter valid row and column (0-19).");
-                    continue;
+                    Console.Write("Row (1-20): ");
+
+                    // check if user enters a number that falls within the width of the board
+                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > 20)
+                    {
+                        Console.WriteLine("Invalid row.\n");
+                        continue;
+                    }
+                    break;
                 }
 
-                else if (board[x, y] != '.')
+                // get column from user 
+                while (true)
                 {
-                    Console.WriteLine("Spot taken! Try another.");
+                    Console.Write("Column (1-20): ");
+
+                    // check if user enters a number that falls within the height of the board
+                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > 20)
+                    {
+                        Console.WriteLine("Invalid column.\n");
+                        continue;
+                    }
+                    break;
+                }
+
+                // check if spot is taken
+                if (board[x, y] != '.')
+                {
+                    Console.WriteLine("Spot taken.\n");
                 }
                 else
                 {
