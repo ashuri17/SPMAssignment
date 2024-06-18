@@ -34,6 +34,7 @@ namespace NgeeAnnCity
             while (coins > 0)
             {
                 Console.Clear();
+                Console.WriteLine("\x1b[3J");
                 turnNumber++;
                 DisplayBoard();
                 DisplayStats();
