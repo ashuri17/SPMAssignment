@@ -46,15 +46,20 @@
 
                 Console.WriteLine("Choose a building to construct (R, I, C, O, *): ");
                 char choice = Console.ReadKey().KeyChar;
+                choice = Char.ToUpper(choice);
                 Console.WriteLine();
 
                 if ("RICO*".Contains(choice))
                 {
-                    PlaceBuilding(choice);
-                    UpdateScoresAndFinances();
-                    turn++;
+                    bool buildingStatus = PlaceBuilding(choice);
+                    if(buildingStatus)  //ensures number of turns doesn't increase even if user inputs an invalid row and column integer
+                    {
+                        UpdateScoresAndFinances();  //update score and profit/upkeep
+                        turn++;
+                    }
+                    else { continue; }
                 }
-                else
+                else     //handle invalid user input
                 {
                     Console.WriteLine("Invalid choice, try again.");
                     Console.ReadKey();
@@ -62,22 +67,34 @@
             }
         }
 
-        private void PlaceBuilding(char building)
+        private bool PlaceBuilding(char building)
         {
-            Console.WriteLine("Enter the row (0-4) and column (0-4) to place the building:");
+            Console.WriteLine("Enter the row (1-5) and column (1-5) to place the building:");
             Console.Write("Row: ");
-            int row = int.Parse(Console.ReadLine());
+            string? rowInput = Console.ReadLine();
             Console.Write("Column: ");
-            int col = int.Parse(Console.ReadLine());
-
-            if (row >= 0 && row < InitialGridSize && col >= 0 && col < InitialGridSize && grid[row, col] == '.')
+            string? colInput = Console.ReadLine();
+            if (int.TryParse(rowInput, out int row) && int.TryParse(colInput, out int col))//check if inputs can be parsed as ints, return integers if true;
             {
-                grid[row, col] = building;
+                row -= 1;
+                col -= 1;
+                if (row >= 0 && row < InitialGridSize && col >= 0 && col < InitialGridSize && grid[row, col] == '.')
+                {
+                    grid[row, col] = building;
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid location or cell already occupied. Try again.");
+                    Console.ReadKey();
+                    return false;
+                }
             }
             else
             {
-                Console.WriteLine("Invalid location or cell already occupied. Try again.");
+                Console.WriteLine("Please input an integer for the grid's row and column");
                 Console.ReadKey();
+                return false;
             }
         }
 
