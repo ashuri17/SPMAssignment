@@ -321,7 +321,7 @@ namespace NgeeAnnCity
                    (col < 20 - 1 && grid[row, col + 1] != '.');
         }
 
-        private bool IsConnectedViaRoad(int row, int col, char building)
+        private bool IsConnectedViaRoad(int row, int col)
         {
             bool[][] visited = new bool[20][];
             for (int i = 0; i < 20; i++)
@@ -329,10 +329,10 @@ namespace NgeeAnnCity
                 visited[i] = new bool[20];
             }
 
-            return IsConnectedViaRoadRec(row, col, building, visited);
+            return IsConnectedViaRoadRec(row, col, visited);
         }
 
-        private bool IsConnectedViaRoadRec(int row, int col, char building, bool[][] visited)
+        private bool IsConnectedViaRoadRec(int row, int col, bool[][] visited)
         {
             if (row < 0 || row >= 20 || col < 0 || col >= 20 || visited[row][col])
             {
@@ -341,21 +341,22 @@ namespace NgeeAnnCity
 
             visited[row][col] = true;
 
-            if (grid[row, col] == building)
+            if (grid[row, col] != '*' && grid[row, col] != '.')
             {
-                return true;
+                return true;  // Found any building
             }
 
             if (grid[row, col] != '*')
             {
-                return false;
+                return false;  // No road found
             }
 
-            return IsConnectedViaRoadRec(row - 1, col, building, visited) ||
-                   IsConnectedViaRoadRec(row + 1, col, building, visited) ||
-                   IsConnectedViaRoadRec(row, col - 1, building, visited) ||
-                   IsConnectedViaRoadRec(row, col + 1, building, visited);
+            return IsConnectedViaRoadRec(row - 1, col, visited) ||
+                   IsConnectedViaRoadRec(row + 1, col, visited) ||
+                   IsConnectedViaRoadRec(row, col - 1, visited) ||
+                   IsConnectedViaRoadRec(row, col + 1, visited);
         }
+
 
         private bool IsAdjacent(int row, int col, char ignoreBuilding)
         {
