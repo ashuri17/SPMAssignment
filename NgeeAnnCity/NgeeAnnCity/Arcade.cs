@@ -68,7 +68,7 @@ namespace NgeeAnnCity
 
                 // Update game state
                 coins -= 1;
-
+                UpdateScoresAndFinances();
                 Console.WriteLine("Press any key for the next turn...");
                 Console.ReadKey();
             }
