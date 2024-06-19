@@ -310,10 +310,51 @@ namespace NgeeAnnCity
 
         private bool IsAdjacentTo(int row, int col, char building)
         {
-            return (row > 0 && grid[row - 1, col] == building) ||
-                   (row < 20 - 1 && grid[row + 1, col] == building) ||
-                   (col > 0 && grid[row, col - 1] == building) ||
-                   (col < 20 - 1 && grid[row, col + 1] == building);
+            return IsOrthogonallyAdjacent(row, col) || IsConnectedViaRoad(row, col, building);
+        }
+
+        private bool IsOrthogonallyAdjacent(int row, int col)
+        {
+            return (row > 0 && grid[row - 1, col] != '.') ||
+                   (row < 20 - 1 && grid[row + 1, col] != '.') ||
+                   (col > 0 && grid[row, col - 1] != '.') ||
+                   (col < 20 - 1 && grid[row, col + 1] != '.');
+        }
+
+        private bool IsConnectedViaRoad(int row, int col, char building)
+        {
+            bool[][] visited = new bool[20][];
+            for (int i = 0; i < 20; i++)
+            {
+                visited[i] = new bool[20];
+            }
+
+            return IsConnectedViaRoadRec(row, col, building, visited);
+        }
+
+        private bool IsConnectedViaRoadRec(int row, int col, char building, bool[][] visited)
+        {
+            if (row < 0 || row >= 20 || col < 0 || col >= 20 || visited[row][col])
+            {
+                return false;
+            }
+
+            visited[row][col] = true;
+
+            if (grid[row, col] == building)
+            {
+                return true;
+            }
+
+            if (grid[row, col] != '*')
+            {
+                return false;
+            }
+
+            return IsConnectedViaRoadRec(row - 1, col, building, visited) ||
+                   IsConnectedViaRoadRec(row + 1, col, building, visited) ||
+                   IsConnectedViaRoadRec(row, col - 1, building, visited) ||
+                   IsConnectedViaRoadRec(row, col + 1, building, visited);
         }
 
         private bool IsAdjacent(int row, int col, char ignoreBuilding)
