@@ -1,17 +1,17 @@
-﻿namespace NgeeAnnCity
+﻿using System.ComponentModel;
+
+namespace NgeeAnnCity
 {
     class FreePlayGame
     {
         private const int InitialGridSize = 5;
         private char[,] grid;
-        private int coins;
         private int score;
         private int profit;
         private int upkeep;
 
         public FreePlayGame()
         {
-            coins = 0;
             score = 0;
             profit = 0;
             upkeep = 0;
@@ -46,10 +46,10 @@
 
                 Console.WriteLine("Choose a building to construct (R, I, C, O, *): ");
                 char choice = Console.ReadKey().KeyChar;
-                choice = Char.ToUpper(choice);
+                choice = Char.ToUpper(choice);  //accepts any letter case.
                 Console.WriteLine();
 
-                if ("RICO*".Contains(choice))
+                if ("RICO*".Contains(choice))   //filters out any char that is NOT 'RICO*'
                 {
                     bool buildingStatus = PlaceBuilding(choice);
                     if(buildingStatus)  //ensures number of turns doesn't increase even if user inputs an invalid row and column integer
@@ -116,6 +116,7 @@
                             case 'R':
                                 score += CalculateResidentialScore(i, j);
                                 profit += 1;
+                                //UPKEEP TO BE IMPLEMENTED LATER
                                 break;
                             case 'I':
                                 score += CalculateIndustryScore();
@@ -133,6 +134,12 @@
                                 break;
                             case '*':
                                 score += CalculateRoadScore(i);
+                                if (!IsAdjacentTo(i, j, 'R') && !IsAdjacentTo(i, j, 'I') &&
+                                    !IsAdjacentTo(i, j, 'C') && !IsAdjacentTo(i, j, 'O') &&
+                                    !IsAdjacentTo(i, j, '*'))   //checks if road is NOT adjacent to any other buildings
+                                {
+                                    upkeep += 1;
+                                }
                                 break;
                         }
                     }
@@ -207,7 +214,6 @@
             if (col < InitialGridSize - 1 && grid[row, col + 1] == building) count++;
             return count;
         }
-
         private void DisplayGrid()
         {
             Console.WriteLine("Current Map:");
@@ -224,7 +230,6 @@
         private void DisplayInfo(int turn)
         {
             Console.WriteLine($"Turn: {turn}");
-            Console.WriteLine($"Coins: {coins}");
             Console.WriteLine($"Score: {score}");
             Console.WriteLine($"Profit: {profit}");
             Console.WriteLine($"Upkeep: {upkeep}");
