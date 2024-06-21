@@ -172,5 +172,11 @@ namespace NgeeAnnCity
                 }
             }
         }
+
+
+        internal char GetBuilding(int row, int column)
+        {
+            return grid[row, column];
+        }
     }
 }
