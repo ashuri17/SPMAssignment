@@ -6,7 +6,7 @@ namespace NgeeAnnCity
     public class Arcade
     {
         private Board board;
-        private int turnNumber;
+        private int turn;
         private int coins;
         private int points;
         private string[] buildings;
@@ -15,7 +15,7 @@ namespace NgeeAnnCity
         public Arcade()
         { 
             board = new Board(20);
-            turnNumber = 0;
+            turn = 0;
             coins = 100;
             points = 0;
             buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" } ;
@@ -34,7 +34,7 @@ namespace NgeeAnnCity
             {
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
-                turnNumber++;
+                turn++;
                 board.Display();
                 DisplayStats();
 
@@ -105,7 +105,7 @@ namespace NgeeAnnCity
         private void DisplayStats()
         {
             Console.WriteLine(new string('-', 10) + "ARCADE MODE" + new string('-', 10) + "\n");
-            Console.WriteLine($"Turn: {turnNumber}");
+            Console.WriteLine($"Turn: {turn}");
             Console.WriteLine($"Coins left: {coins}");
             Console.WriteLine($"Points: {points}");
         }
