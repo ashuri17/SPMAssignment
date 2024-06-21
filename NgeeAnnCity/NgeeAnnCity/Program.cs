@@ -4,7 +4,9 @@ using System.Text.Json.Serialization;
 
 List<SaveFile> SaveScreen = new();
 
-void SavingFile()
+
+
+/*void SavingFile()
 {
     Console.WriteLine("Enter a description for this save file (optional): ");
     string? UserGivenDesc = Console.ReadLine();
@@ -18,7 +20,7 @@ void SavingFile()
         SaveDateTime = DateTime.Now,
         SaveID = SaveScreen.Count + 1,
         SaveDesc = UserGivenDesc,
-        Location = "Not entirely sure", //Important implementation
+        Location = "Coords"
         Stats = "DisplayStats()",
         FilePath = $"Saves\\Save{SaveScreen.Count + 1}"
     };
@@ -30,20 +32,21 @@ void SavingFile()
     File.WriteAllText($"Saves\\{saveFileName}", jsonString);
 
     SaveScreen.Add(SF);
-}
+}*/
 
 SaveFile? LoadingFile()
 {
-    SaveScreen.ForEach(i => Console.WriteLine($"{i.SaveDateTime} {i.SaveID} {i.SaveDesc} {i.Location}")); //If location is coordinates don't show, if name show
+    SaveScreen.ForEach(i => Console.WriteLine($"{i.GameType}{i.SaveDateTime} {i.SaveID} {i.SaveDesc}"));
     Console.WriteLine("Choose a file to load:"); //User selects file to load
     string? fileLoad = Console.ReadLine();
-    string path = $"Save{fileLoad}.json";
-    if (!File.Exists(path)) //Checking for file
+    string path = $"Saves\\Save{fileLoad}.json";
+    if (File.Exists(path)) //Checking for file
     {
         using (StreamReader r = new StreamReader(path)) //Reading file
         {
             string jsonString = r.ReadToEnd();
             SaveFile? saveFile = JsonSerializer.Deserialize<SaveFile>(jsonString);
+            Console.WriteLine(saveFile.ToString());
             return saveFile;
         }
     }
@@ -54,3 +57,5 @@ SaveFile? LoadingFile()
     }
 }
 
+LoadingFile();
+//Run Program Type "1"
