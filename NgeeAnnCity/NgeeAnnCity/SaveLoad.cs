@@ -60,12 +60,13 @@ public class SaveFile
             string jsonString = r.ReadToEnd();
             return JsonSerializer.Deserialize<SaveFile>(jsonString);
         }
-
-
+        
+                                                                                 
     }
-
     public override string ToString()
-    {
-        return $"{GameType}\n{SaveDateTime}\n{SaveID}\n{SaveDesc}\n{Location}\n{Stats}";
-    }
+        {
+            return $"{GameType}\n{SaveDateTime}\n{SaveID}\n{SaveDesc}\n{Location}\n{Stats}";
+        }
+
+    
 }
