@@ -64,7 +64,7 @@
                     continue;
                 }
 
-                return char.Parse(choice.ToUpper();
+                return char.Parse(choice.ToUpper());
             }
         }
     }
