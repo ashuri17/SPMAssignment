@@ -14,23 +14,23 @@ namespace NgeeAnnCity
         public Board(int size)
         {
             this.size = size;
-            this.grid = new char[size, size];
+            grid = new char[size, size];
         }
 
         internal void Initialize()
         {
-            for (int i = 0; i < this.size; i++)
+            for (int i = 0; i < size; i++)
             {
-                for (int j = 0; j < this.size; j++)
+                for (int j = 0; j < size; j++)
                 {
-                    this.grid[i, j] = '.';
+                    grid[i, j] = '.';
                 }
             }
         }
 
         internal void Display()
         {
-            int horizontalPadding = this.size.ToString().Length + 1;
+            int horizontalPadding = size.ToString().Length + 1;
 
             // get grid labels
             char[][] gridLabels = GetGridLabels();
@@ -45,14 +45,14 @@ namespace NgeeAnnCity
             Console.WriteLine();
 
             // print grid
-            for (int i = 0; i < this.size; i++)
+            for (int i = 0; i < size; i++)
             {
                 // grid label on the left
                 Console.Write($"{i + 1}".PadLeft(horizontalPadding) + "  ");
 
-                for (int j = 0; j < this.size; j++)
+                for (int j = 0; j < size; j++)
                 {
-                    Console.Write(this.grid[i, j] + " ");
+                    Console.Write(grid[i, j] + " ");
                 }
 
                 Console.WriteLine();
@@ -63,13 +63,13 @@ namespace NgeeAnnCity
         private char[][] GetGridLabels()
         {
             // Get each number to print
-            int[] numbers = Enumerable.Range(1, this.size).ToArray();
+            int[] numbers = Enumerable.Range(1, size).ToArray();
 
             // Convert each number to a string
             string[] numberStrings = numbers.Select(i => i.ToString()).ToArray();
 
             // Max number of digits for each number => number of digits the largest number has => number of digits the width has
-            int maxLength = this.size.ToString().Length;
+            int maxLength = size.ToString().Length;
 
             // Number of rows the array should have
             char[][] rows = new char[maxLength][];
@@ -77,11 +77,11 @@ namespace NgeeAnnCity
             // Number of columns (digits) each row should have
             for (int i = 0; i < maxLength; i++)
             {
-                rows[i] = new char[this.size];
+                rows[i] = new char[size];
             }
 
             // Iterate through each number
-            for (int col = 0; col < this.size; col++)
+            for (int col = 0; col < size; col++)
             {
                 string num = numberStrings[col];
                 int numLen = num.Length;
@@ -135,10 +135,10 @@ namespace NgeeAnnCity
                 // get row from user
                 while (true)
                 {
-                    Console.Write($"Row (1-{this.size}): ");
+                    Console.Write($"Row (1-{size}): ");
 
                     // check if user enters a number that falls within the width of the board
-                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > this.size)
+                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
                     {
                         Console.WriteLine("Invalid row.\n");
                         continue;
@@ -149,10 +149,10 @@ namespace NgeeAnnCity
                 // get column from user 
                 while (true)
                 {
-                    Console.Write($"Column (1-{this.size}): ");
+                    Console.Write($"Column (1-{size}): ");
 
                     // check if user enters a number that falls within the height of the board
-                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > this.size)
+                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
                     {
                         Console.WriteLine("Invalid column.\n");
                         continue;
@@ -161,13 +161,13 @@ namespace NgeeAnnCity
                 }
 
                 // check if spot is taken
-                if (this.grid[x-1, y-1] != '.')
+                if (grid[x-1, y-1] != '.')
                 {
                     Console.WriteLine("Spot taken.\n");
                 }
                 else
                 {
-                    this.grid[x-1, y-1] = building;
+                    grid[x-1, y-1] = building;
                     break;
                 }
             }
