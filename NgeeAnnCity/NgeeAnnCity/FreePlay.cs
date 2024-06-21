@@ -2,7 +2,7 @@
 {
     class FreePlayGame
     {
-        private const int size = 5;
+        private int size = 5;
         private Board board;
         private int coins;
         private int points;
