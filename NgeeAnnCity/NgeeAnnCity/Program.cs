@@ -62,5 +62,5 @@ void MainMenu()
     Console.WriteLine(padding + title);
     Console.WriteLine(new string('-', menuItems.Max(i => i.Length)) + "\n");
     menuItems.ForEach(i => Console.WriteLine(i));
->>>>>>> origin/main
+
 }
