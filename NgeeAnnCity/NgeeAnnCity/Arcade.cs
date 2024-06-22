@@ -234,6 +234,10 @@ namespace NgeeAnnCity
                             case 'R':
                                 score += CalculateResidentialScore(i, j);
                                 profit += 1;
+                                if (!IsPartOfResidentialCluster(i, j))
+                                {
+                                    upkeep += 1;
+                                }
                                 break;
                             case 'I':
                                 score += CalculateIndustryScore();
@@ -251,13 +255,53 @@ namespace NgeeAnnCity
                                 break;
                             case '*':
                                 score += CalculateRoadScore(i);
+                                upkeep += CalculateRoadUpkeep();
                                 break;
                         }
                     }
                 }
             }
+            coins += profit;
+            coins -= upkeep;
+        }
+        private int CalculateRoadUpkeep()
+        {
+            int roadUpkeep = 0;
+            bool[][] visited = new bool[20][];
+            for (int i = 0; i < 20; i++)
+            {
+                visited[i] = new bool[20];
+            }
+
+            for (int row = 0; row < 20; row++)
+            {
+                for (int col = 0; col < 20; col++)
+                {
+                    if (grid[row, col] == '*' && !IsConnectedToOtherRoad(row, col, visited))
+                    {
+                        roadUpkeep++;
+                    }
+                }
+            }
+
+            return roadUpkeep;
         }
 
+        private bool IsConnectedToOtherRoad(int row, int col, bool[][] visited)
+        {
+            if (row < 0 || row >= 20 || col < 0 || col >= 20 || visited[row][col] || grid[row, col] != '*')
+            {
+                return false;
+            }
+
+            visited[row][col] = true;
+
+            // Check all orthogonal directions for connected road segments
+            return IsConnectedToOtherRoad(row - 1, col, visited) ||
+                   IsConnectedToOtherRoad(row + 1, col, visited) ||
+                   IsConnectedToOtherRoad(row, col - 1, visited) ||
+                   IsConnectedToOtherRoad(row, col + 1, visited);
+        }
         private int CalculateResidentialScore(int row, int col)
         {
             int score = 0;
@@ -267,6 +311,17 @@ namespace NgeeAnnCity
             }
             score += CountAdjacent(row, col, 'R') + CountAdjacent(row, col, 'C') + 2 * CountAdjacent(row, col, 'O');
             return score;
+        }
+        private bool IsPartOfResidentialCluster(int row, int col)
+        {
+            return (row > 0 && grid[row - 1, col] == 'R') || // Up
+                   (row < 20 - 1 && grid[row + 1, col] == 'R') || // Down
+                   (col > 0 && grid[row, col - 1] == 'R') || // Left
+                   (col < 20 - 1 && grid[row, col + 1] == 'R') || // Right
+                   (row > 0 && col > 0 && grid[row - 1, col - 1] == 'R') || // Up-Left
+                   (row > 0 && col < 20 - 1 && grid[row - 1, col + 1] == 'R') || // Up-Right
+                   (row < 20 - 1 && col > 0 && grid[row + 1, col - 1] == 'R') || // Down-Left
+                   (row < 20 - 1 && col < 20 - 1 && grid[row + 1, col + 1] == 'R'); // Down-Right
         }
 
         private int CalculateIndustryScore()
@@ -310,15 +365,22 @@ namespace NgeeAnnCity
 
         private bool IsAdjacentTo(int row, int col, char building)
         {
-            return IsOrthogonallyAdjacent(row, col) || IsConnectedViaRoad(row, col, building);
+            return IsOrthogonallyAdjacent(row, col) || IsConnectedViaRoad(row, col);
         }
 
         private bool IsOrthogonallyAdjacent(int row, int col)
         {
-            return (row > 0 && grid[row - 1, col] != '.') ||
-                   (row < 20 - 1 && grid[row + 1, col] != '.') ||
-                   (col > 0 && grid[row, col - 1] != '.') ||
-                   (col < 20 - 1 && grid[row, col + 1] != '.');
+            return (row > 0 && grid[row - 1, col] != '.') ||//Up
+                   (row < 20 - 1 && grid[row + 1, col] != '.') ||//Down
+                   (col > 0 && grid[row, col - 1] != '.') ||//Left
+                   (col < 20 - 1 && grid[row, col + 1] != '.');//Right
+        }
+        private bool IsDiagonallyAdjacent(int row, int col)
+        {
+            return (row > 0 && col > 0 && grid[row - 1, col - 1] != '.') || // Up-Left
+                   (row > 0 && col < 20 - 1 && grid[row - 1, col + 1] != '.') || // Up-Right
+                   (row < 20 - 1 && col > 0 && grid[row + 1, col - 1] != '.') || // Down-Left
+                   (row < 20 - 1 && col < 20 - 1 && grid[row + 1, col + 1] != '.'); // Down-Right
         }
 
         private bool IsConnectedViaRoad(int row, int col)
@@ -360,7 +422,6 @@ namespace NgeeAnnCity
 
         private bool IsAdjacent(int row, int col, char ignoreBuilding)
         {
-            // Check if any of the surrounding cells are not equal to ignoreBuilding ('.' in this case)
             return (row > 0 && grid[row - 1, col] != ignoreBuilding) ||
                    (row < height - 1 && grid[row + 1, col] != ignoreBuilding) ||
                    (col > 0 && grid[row, col - 1] != ignoreBuilding) ||
