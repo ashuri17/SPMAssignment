@@ -1,93 +1,66 @@
 ﻿using NgeeAnnCity;
-//hello
-int choice;
-do
+
+
+
+
+StartNgeeAnnCity();
+void StartNgeeAnnCity()
 {
-    DisplayMenu();
-    choice = GetChoice();
-
-    try
+    while (true)
     {
-        // Enter user input
-        if (choice == 1)
+        MainMenu();
+        Console.Write("\n\n\nPick option (1-5): ");
+
+        switch (Console.ReadLine())
         {
-            //StartNewArcadeGame();
-        }
-        else if (choice == 2)
-        {
-            StartNewFreePlayGame();
-        }
-        else if (choice == 3)
-        {
-            LoadSavedGame();
-        }
-        else if (choice == 4)
-        {
-            DisplayHighScores();
-        }
-        else if (choice == 0)
-        {
-            Console.WriteLine("Bye!");
-        }
-        else
-        {
-            Console.WriteLine("Invalid option! Please try again.");
+            case "1":
+                new Arcade().Start();
+                break;
+
+            case "2":
+                new FreePlayGame().Start();
+                break;
+
+            case "3":
+                break;
+
+            case "4":
+                HighScores.Start();
+                break;
+
+            case "5":
+                Console.WriteLine("Exiting Ngee Ann City...");
+                Thread.Sleep(700);
+                Console.WriteLine("Goodbye!\n");
+                return;
+
+            default:
+                // User entered a number that is not valid as an option
+                Console.WriteLine("\nInvalid option");
+                break;
         }
     }
-    catch (FormatException ex)
-    {
-        Console.WriteLine("Error: " + ex.Message);
-        Console.WriteLine("Invalid input. Please enter a valid number.");
-    }
-
-    catch (Exception ex)
-    {
-        Console.WriteLine("Error: " + ex.Message);
-    }
-
-} while (choice != 0);
-//To display the menu
-void DisplayMenu()
-{
-    Console.WriteLine("Welcome to Ngee Ann City Game");
-    Console.WriteLine("[1] Start new arcade game");
-    Console.WriteLine("[2] Start new free play game");
-    Console.WriteLine("[3] Load saved game");
-    Console.WriteLine("[4] Display high scores");
-    Console.WriteLine("[0] Exit");
-    Console.WriteLine("---------------------------------");
 }
 
-int GetChoice()
+void MainMenu()
 {
-    int choice;
-    Console.Write("Enter your option: ");
+    // title of App
+    string title = "NGEE ANN CITY";
 
-    try
-    {
-        choice = Convert.ToInt32(Console.ReadLine());
-    }
-    catch (FormatException)
-    {
-        Console.WriteLine("Invalid input. Please enter a valid number.");
-        choice = GetChoice();
-    }
-    return choice;
-}
+    // add items into menu
+    List<string> menuItems = [];
+    menuItems.Add("1. New Arcade Game");
+    menuItems.Add("2. New Free Play Game");
+    menuItems.Add("3. Load Saved Game");
+    menuItems.Add("4. Display Highscores");
+    menuItems.Add("5. Exit App");
 
+    // get padding to center title when printing
+    string padding = new string(' ', (int)Math.Floor((double)(menuItems.Max(i => i.Length) - title.Length) / 2));
 
-void StartNewFreePlayGame()
-{
-    FreePlayGame game = new FreePlayGame();
-    game.Play();
-}
-
-void LoadSavedGame()
-{
-    // Implement load game functionality
-}
-
-void DisplayHighScores()
-{
-    // Implement high score display functionality
+    // print title + menu
+    Console.WriteLine(padding + title);
+    Console.WriteLine(new string('-', menuItems.Max(i => i.Length)) + "\n");
+    menuItems.ForEach(i => Console.WriteLine(i));
+>>>>>>> origin/main
 }
