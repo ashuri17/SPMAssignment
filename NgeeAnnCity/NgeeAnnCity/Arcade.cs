@@ -9,7 +9,7 @@ namespace NgeeAnnCity
         private int height;
         private int width;
         private char[,] grid;
-        private int turnNumber;
+        private int turn;
         private int coins;
         private int score;
         private int profit;
@@ -22,7 +22,7 @@ namespace NgeeAnnCity
             this.height = 20;
             this.width = 20;
             this.grid = new char[height, width];
-            this.turnNumber = 0;
+            this.turn = 0;
             this.coins = 16;
             this.score = 0;
             this.buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
@@ -52,7 +52,7 @@ namespace NgeeAnnCity
             {
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
-                turnNumber++;
+                turn++;
                 DisplayBoard();
                 DisplayStats();
 
@@ -163,7 +163,7 @@ namespace NgeeAnnCity
                 else
                 {
                     // Check if the spot is adjacent to an existing building
-                    if (turnNumber == 1 || IsAdjacent(x, y, '.')) // Allow placing on any spot for the first turn
+                    if (turn == 1 || IsAdjacent(x, y, '.')) // Allow placing on any spot for the first turn
                     {
                         grid[x, y] = building;
                         break;
@@ -211,7 +211,7 @@ namespace NgeeAnnCity
         private void DisplayStats()
         {
             Console.WriteLine(new string('-', 10) + "ARCADE MODE" + new string('-', 10) + "\n");
-            Console.WriteLine($"Turn: {turnNumber}");
+            Console.WriteLine($"Turn: {turn}");
             Console.WriteLine($"Coins left: {coins}");
             Console.WriteLine($"Points: {score}");
         }
