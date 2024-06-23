@@ -1,6 +1,9 @@
-﻿namespace NgeeAnnCity
+﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
+
+namespace NgeeAnnCity
 {
-    //hello
+    //hello :D
     class FreePlayGame
     {
         private const int InitialGridSize = 5;
@@ -9,6 +12,8 @@
         private int score;
         private int profit;
         private int upkeep;
+
+        private int expansionCount = 0;
 
         public FreePlayGame()
         {
@@ -20,13 +25,13 @@
 
         public void Start()
         {
-            InitializeGrid();
+            InitializeGrid(InitialGridSize);
             PlayGame();
         }
 
-        private void InitializeGrid()
+        private void InitializeGrid(int CurrentGridSize)
         {
-            grid = new char[InitialGridSize, InitialGridSize];
+            grid = new char[CurrentGridSize, CurrentGridSize];
             for (int i = 0; i < InitialGridSize; i++)
             {
                 for (int j = 0; j < InitialGridSize; j++)
@@ -74,6 +79,12 @@
             if (row >= 0 && row < InitialGridSize && col >= 0 && col < InitialGridSize && grid[row, col] == '.')
             {
                 grid[row, col] = building;
+                if (row == 0 || row == (4 + 10 * expansionCount) || col == 0 || col== 4 + 10 * expansionCount) //Check for building placement on border
+                {
+                    expansionCount++;
+                    ExpandMap(expansionCount);
+
+                }
             }
             else
             {
@@ -212,6 +223,11 @@
             Console.WriteLine($"Score: {score}");
             Console.WriteLine($"Profit: {profit}");
             Console.WriteLine($"Upkeep: {upkeep}");
+        }
+
+        private void ExpandMap(int expansionCount)
+        {
+            InitializeGrid(InitialGridSize + (10 * expansionCount));
         }
     }
 }
