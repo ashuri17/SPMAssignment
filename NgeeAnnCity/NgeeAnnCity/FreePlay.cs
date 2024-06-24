@@ -103,7 +103,7 @@ namespace NgeeAnnCity
             score = 0;
             profit = 0;
             upkeep = 0;
-
+            bool[,] visited = new bool[InitialGridSize, InitialGridSize];
             for (int i = 0; i < InitialGridSize; i++)
             {
                 for (int j = 0; j < InitialGridSize; j++)
@@ -116,7 +116,18 @@ namespace NgeeAnnCity
                             case 'R':
                                 score += CalculateResidentialScore(i, j);
                                 profit += 1;
-                                //UPKEEP TO BE IMPLEMENTED LATER
+                                if (!visited[i, j])
+                                {
+                                    if (CountAdjacent(i, j, 'R') >= 1)  //checks for 'R' cluster exists
+                                    {
+                                        MarkCluster(i, j, 'R', visited);    //enters MarkCluster with the particular info
+                                        upkeep += 1;
+                                    }
+                                    else
+                                    {
+                                        upkeep += 1;
+                                    }
+                                }
                                 break;
                             case 'I':
                                 score += CalculateIndustryScore();
@@ -213,6 +224,29 @@ namespace NgeeAnnCity
             if (col > 0 && grid[row, col - 1] == building) count++;
             if (col < InitialGridSize - 1 && grid[row, col + 1] == building) count++;
             return count;
+        }
+
+        private void MarkCluster(int row, int col, char building, bool[,] visited)
+        {
+            Queue<(int, int)> queue = new Queue<(int, int)>();
+            queue.Enqueue((row, col));  //enqueues the 'R' cell coords to check for cluster
+
+            while (queue.Count > 0)
+            {
+                var (currentRow, currentCol) = queue.Dequeue(); //get first cell coords from queue
+                if (currentRow >= 0 && currentRow < InitialGridSize && currentCol >= 0 && currentCol < InitialGridSize
+                    && grid[currentRow, currentCol] == building && !visited[currentRow, currentCol]) /*checks if grid[currentRow, currentCol] is 'R' and is a cell that has NOT been visited,
+                                                                                                      code exits out of loop if particular cell is not 'R'*/
+                {
+                    visited[currentRow, currentCol] = true; //sets particular cell as a 'visited' cell to prevent UpdateScoresandFinances() from tracking this cell
+
+                    // enqueues the 4 adjacent cell coords for the next loop
+                    queue.Enqueue((currentRow - 1, currentCol));
+                    queue.Enqueue((currentRow + 1, currentCol));
+                    queue.Enqueue((currentRow, currentCol - 1));
+                    queue.Enqueue((currentRow, currentCol + 1));
+                }
+            }
         }
         private void DisplayGrid()
         {
