@@ -13,7 +13,6 @@ namespace NgeeAnnCity
         private int coins;
         private int score;
         private int profit;
-        private int upkeep;
         private string[] buildings;
         private Random random;
 
@@ -220,8 +219,6 @@ namespace NgeeAnnCity
         {
             score = 0;
             profit = 0;
-            upkeep = 0;
-
             for (int i = 0; i < 20; i++)
             {
                 for (int j = 0; j < 20; j++)
@@ -233,58 +230,26 @@ namespace NgeeAnnCity
                         {
                             case 'R':
                                 score += CalculateResidentialScore(i, j);
-                                profit += 1;
-                                if (!IsPartOfResidentialCluster(i, j))
-                                {
-                                    upkeep += 1;
-                                }
                                 break;
                             case 'I':
                                 score += CalculateIndustryScore();
-                                profit += 2;
-                                upkeep += 1;
+                                profit += CountAdjacentRoads(i,j);
                                 break;
                             case 'C':
                                 score += CalculateCommercialScore(i, j);
-                                profit += 3;
-                                upkeep += 2;
+                                profit += CountAdjacentRoads(i, j);
                                 break;
                             case 'O':
                                 score += CalculateParkScore(i, j);
-                                upkeep += 1;
                                 break;
                             case '*':
                                 score += CalculateRoadScore(i);
-                                upkeep += CalculateRoadUpkeep();
                                 break;
                         }
                     }
                 }
             }
             coins += profit;
-            coins -= upkeep;
-        }
-        private int CalculateRoadUpkeep()
-        {
-            int roadUpkeep = 0;
-            bool[][] visited = new bool[20][];
-            for (int i = 0; i < 20; i++)
-            {
-                visited[i] = new bool[20];
-            }
-
-            for (int row = 0; row < 20; row++)
-            {
-                for (int col = 0; col < 20; col++)
-                {
-                    if (grid[row, col] == '*' && !IsConnectedToOtherRoad(row, col, visited))
-                    {
-                        roadUpkeep++;
-                    }
-                }
-            }
-
-            return roadUpkeep;
         }
 
         private bool IsConnectedToOtherRoad(int row, int col, bool[][] visited)
@@ -312,16 +277,14 @@ namespace NgeeAnnCity
             score += CountAdjacent(row, col, 'R') + CountAdjacent(row, col, 'C') + 2 * CountAdjacent(row, col, 'O');
             return score;
         }
-        private bool IsPartOfResidentialCluster(int row, int col)
+        private int CountAdjacentRoads(int row, int col)
         {
-            return (row > 0 && grid[row - 1, col] == 'R') || // Up
-                   (row < 20 - 1 && grid[row + 1, col] == 'R') || // Down
-                   (col > 0 && grid[row, col - 1] == 'R') || // Left
-                   (col < 20 - 1 && grid[row, col + 1] == 'R') || // Right
-                   (row > 0 && col > 0 && grid[row - 1, col - 1] == 'R') || // Up-Left
-                   (row > 0 && col < 20 - 1 && grid[row - 1, col + 1] == 'R') || // Up-Right
-                   (row < 20 - 1 && col > 0 && grid[row + 1, col - 1] == 'R') || // Down-Left
-                   (row < 20 - 1 && col < 20 - 1 && grid[row + 1, col + 1] == 'R'); // Down-Right
+            int count = 0;
+            if (row > 0 && grid[row - 1, col] == '*') count++; // Up
+            if (row < 20 - 1 && grid[row + 1, col] == '*') count++; // Down
+            if (col > 0 && grid[row, col - 1] == '*') count++; // Left
+            if (col < 20 - 1 && grid[row, col + 1] == '*') count++; // Right
+            return count;
         }
 
         private int CalculateIndustryScore()
