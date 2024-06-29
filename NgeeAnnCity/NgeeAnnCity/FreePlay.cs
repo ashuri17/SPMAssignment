@@ -1,4 +1,7 @@
-﻿namespace NgeeAnnCity
+﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
+
+namespace NgeeAnnCity
 {
     class FreePlayGame
     {
@@ -9,6 +12,8 @@
         private int profit;
         private int upkeep;
         private int turn;
+
+        private int expansionCount = 0;
 
         public FreePlayGame()
         {
@@ -26,7 +31,7 @@
             PlayGame();
         }
 
-        public void PlayGame()
+        /*public void PlayGame()
         {
             while (true)
             {
@@ -36,10 +41,24 @@
                 board.Display();
                 DisplayInfo();
 
+            if (row >= 0 && row < InitialGridSize && col >= 0 && col < InitialGridSize && grid[row, col] == '.')
+            {
+                grid[row, col] = building;
+                if (row == 0 || row == (4 + 10 * expansionCount) || col == 0 || col== 4 + 10 * expansionCount) //Check for building placement on border
+                {
+                    expansionCount++;
+                    ExpandMap(expansionCount);
+
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid location or cell already occupied. Try again.");
+                Console.ReadKey();
                 char building = GetUserBuilding();
                 board.PlaceBuilding(building);
             }
-        }
+        }*/
 
         private void DisplayInfo()
         {
@@ -66,6 +85,19 @@
 
                 return char.Parse(choice.ToUpper());
             }
+        }
+        private void DisplayInfo(int turn)
+        {
+            Console.WriteLine($"Turn: {turn}");
+            Console.WriteLine($"Coins: {coins}");
+            Console.WriteLine($"Score: {score}");
+            Console.WriteLine($"Profit: {profit}");
+            Console.WriteLine($"Upkeep: {upkeep}");
+        }
+
+        private void ExpandMap(int expansionCount)
+        {
+            InitializeGrid(InitialGridSize + (10 * expansionCount)); /* doesnt this reset the board without saving the building placed*/
         }
     }
 }
