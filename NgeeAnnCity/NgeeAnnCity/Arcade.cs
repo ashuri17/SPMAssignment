@@ -6,43 +6,28 @@ namespace NgeeAnnCity
 {
     public class Arcade
     {
-        private int height;
-        private int width;
-        private char[,] grid;
+        private int profit;
+        private Board board;
         private int turn;
         private int coins;
-        private int score;
-        private int profit;
+        private int points;
         private string[] buildings;
         private Random random;
 
         public Arcade()
-        {
-            this.height = 20;
-            this.width = 20;
-            this.grid = new char[height, width];
-            this.turn = 0;
-            this.coins = 16;
-            this.score = 0;
-            this.buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
-            this.random = new Random();
+        { 
+            board = new Board(20);
+            turn = 0;
+            coins = 16;
+            points = 0;
+            buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" } ;
+            random = new Random();
         }
 
         public void Start()
         {
-            InitializeBoard();
+            board.Initialize();
             PlayGame();
-        }
-
-        private void InitializeBoard()
-        {
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    grid[i, j] = '.';
-                }
-            }
         }
 
         private void PlayGame()
@@ -52,7 +37,7 @@ namespace NgeeAnnCity
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
                 turn++;
-                DisplayBoard();
+                board.Display();
                 DisplayStats();
 
                 // Select two random buildings
@@ -63,7 +48,7 @@ namespace NgeeAnnCity
                 char buildingSymbol = GetBuildingSymbol(chosenBuilding);
 
                 // Place the chosen building
-                PlaceBuilding(buildingSymbol);
+                board.PlaceBuilding(buildingSymbol);
 
                 // Update game state
                 coins -= 1;
@@ -116,97 +101,6 @@ namespace NgeeAnnCity
                 _ => '.',
             };
         }
-
-        private void PlaceBuilding(char building)
-        {
-            int x, y;
-
-            // runs until a building is placed
-            while (true)
-            {
-                // get row from user
-                while (true)
-                {
-                    Console.Write("Row (1-20): ");
-
-                    // check if user enters a number that falls within the width of the board
-                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > 20)
-                    {
-                        Console.WriteLine("Invalid row.\n");
-                        continue;
-                    }
-                    x = x - 1;
-                    break;
-                }
-
-                // get column from user 
-                while (true)
-                {
-                    Console.Write("Column (1-20): ");
-
-                    // check if user enters a number that falls within the height of the board
-                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > 20)
-                    {
-                        Console.WriteLine("Invalid column.\n");
-                        continue;
-                    }
-                    y = y - 1;
-                    break;
-                }
-
-                // check if spot is taken
-                if (grid[x, y] != '.')
-                {
-                    Console.WriteLine("Spot taken.\n");
-                }
-                else
-                {
-                    // Check if the spot is adjacent to an existing building
-                    if (turn == 1 || IsAdjacent(x, y, '.')) // Allow placing on any spot for the first turn
-                    {
-                        grid[x, y] = building;
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Building must be placed adjacent to an existing building.\n");
-                    }
-                }
-            }
-        }
-
-        private void DisplayBoard()
-        {
-            int horizontalPadding = this.width.ToString().Length + 1;
-
-            // get grid labels
-            char[][] gridLabels = GetGridLabels();
-
-            // print top grid labels
-            for (int i = 0; i < gridLabels.Length; i++)
-            {
-                Console.Write(new String(' ', horizontalPadding + 2));
-                Console.WriteLine(string.Join(" ", gridLabels[i]));
-            }
-
-            Console.WriteLine();
-
-            // print grid
-            for (int i = 0; i < this.height; i++)
-            {
-                // grid label on the left
-                Console.Write($"{i + 1}".PadLeft(horizontalPadding) + "  ");
-
-                for (int j = 0; j < width; j++)
-                {
-                    Console.Write(grid[i, j] + " ");
-                }
-
-                Console.WriteLine();
-            }
-            Console.WriteLine("\n\n");
-        }
-
         private void DisplayStats()
         {
             Console.WriteLine(new string('-', 10) + "ARCADE MODE" + new string('-', 10) + "\n");
@@ -214,6 +108,7 @@ namespace NgeeAnnCity
             Console.WriteLine($"Coins left: {coins}");
             Console.WriteLine($"Points: {score}");
         }
+
 
         private void UpdateScoresAndFinances()
         {
