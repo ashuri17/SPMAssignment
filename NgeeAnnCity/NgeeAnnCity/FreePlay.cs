@@ -1,104 +1,66 @@
 ﻿using System.ComponentModel;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
 
 namespace NgeeAnnCity
 {
     class FreePlayGame
     {
-        private const int InitialGridSize = 5;
-        private char[,] grid;
-        private int score;
+        private int size = 5;
+        private Board board;
+        private int coins;
+        private int points;
         private int profit;
         private int upkeep;
+        private int turn;
+
+        private int expansionCount = 0;
 
         public FreePlayGame()
         {
-            score = 0;
+            coins = 0;
+            points = 0;
             profit = 0;
             upkeep = 0;
+            turn = 0;
+            board = new Board(size);
         }
 
         public void Start()
         {
-            InitializeGrid();
+            board.Initialize();
             PlayGame();
         }
 
-        private void InitializeGrid()
+        /*public void PlayGame()
         {
-            grid = new char[InitialGridSize, InitialGridSize];
-            for (int i = 0; i < InitialGridSize; i++)
-            {
-                for (int j = 0; j < InitialGridSize; j++)
-                {
-                    grid[i, j] = '.';
-                }
-            }
-        }
-
-        public void PlayGame()
-        {
-            int turn = 1;
             while (true)
             {
                 Console.Clear();
-                DisplayGrid();
-                DisplayInfo(turn);
+                Console.WriteLine("\x1b[3J");
+                turn++;
+                board.Display();
+                DisplayInfo();
 
-                Console.WriteLine("Choose a building to construct (R, I, C, O, *): ");
-                char choice = Console.ReadKey().KeyChar;
-                choice = Char.ToUpper(choice);  //accepts any letter case.
-                Console.WriteLine();
-
-                if ("RICO*".Contains(choice))   //filters out any char that is NOT 'RICO*'
-                {
-                    bool buildingStatus = PlaceBuilding(choice);
-                    if(buildingStatus)  //ensures number of turns doesn't increase even if user inputs an invalid row and column integer
-                    {
-                        UpdateScoresAndFinances();  //update score and profit/upkeep
-                        turn++;
-                    }
-                    else { continue; }
-                }
-                else     //handle invalid user input
-                {
-                    Console.WriteLine("Invalid choice, try again.");
-                    Console.ReadKey();
-                }
-            }
-        }
-
-        private bool PlaceBuilding(char building)
-        {
-            Console.WriteLine("Enter the row (1-5) and column (1-5) to place the building:");
-            Console.Write("Row: ");
-            string? rowInput = Console.ReadLine();
-            Console.Write("Column: ");
-            string? colInput = Console.ReadLine();
-            if (int.TryParse(rowInput, out int row) && int.TryParse(colInput, out int col))//check if inputs can be parsed as ints, return integers if true;
+            if (row >= 0 && row < InitialGridSize && col >= 0 && col < InitialGridSize && grid[row, col] == '.')
             {
-                row -= 1;
-                col -= 1;
-                if (row >= 0 && row < InitialGridSize && col >= 0 && col < InitialGridSize && grid[row, col] == '.')
+                grid[row, col] = building;
+                if (row == 0 || row == (4 + 10 * expansionCount) || col == 0 || col== 4 + 10 * expansionCount) //Check for building placement on border
                 {
-                    grid[row, col] = building;
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid location or cell already occupied. Try again.");
-                    Console.ReadKey();
-                    return false;
+                    expansionCount++;
+                    ExpandMap(expansionCount);
                 }
             }
             else
             {
                 Console.WriteLine("Please input an integer for the grid's row and column");
                 Console.ReadKey();
-                return false;
+                char building = GetUserBuilding();
+                board.PlaceBuilding(building);
             }
-        }
+        }*/
 
-        private void UpdateScoresAndFinances()
+        private void UpdateScoresandFinances()
         {
             score = 0;
             profit = 0;
@@ -168,62 +130,14 @@ namespace NgeeAnnCity
             score += CountAdjacent(row, col, 'R') + CountAdjacent(row, col, 'C') + 2 * CountAdjacent(row, col, 'O');
             return score;
         }
-
-        private int CalculateIndustryScore()
+        private void DisplayInfo() 
         {
-            int industryCount = 0;
-            for (int i = 0; i < InitialGridSize; i++)
-            {
-                for (int j = 0; j < InitialGridSize; j++)
-                {
-                    if (grid[i, j] == 'I')
-                    {
-                        industryCount++;
-                    }
-                }
-            }
-            return industryCount;
-        }
-
-        private int CalculateCommercialScore(int row, int col)
-        {
-            return CountAdjacent(row, col, 'C');
-        }
-
-        private int CalculateParkScore(int row, int col)
-        {
-            return CountAdjacent(row, col, 'O');
-        }
-
-        private int CalculateRoadScore(int row)
-        {
-            int roadScore = 0;
-            for (int col = 0; col < InitialGridSize; col++)
-            {
-                if (grid[row, col] == '*')
-                {
-                    roadScore++;
-                }
-            }
-            return roadScore;
-        }
-
-        private bool IsAdjacentTo(int row, int col, char building)
-        {
-            return (row > 0 && grid[row - 1, col] == building) ||
-                   (row < InitialGridSize - 1 && grid[row + 1, col] == building) ||
-                   (col > 0 && grid[row, col - 1] == building) ||
-                   (col < InitialGridSize - 1 && grid[row, col + 1] == building);
-        }
-
-        private int CountAdjacent(int row, int col, char building)
-        {
-            int count = 0;
-            if (row > 0 && grid[row - 1, col] == building) count++;
-            if (row < InitialGridSize - 1 && grid[row + 1, col] == building) count++;
-            if (col > 0 && grid[row, col - 1] == building) count++;
-            if (col < InitialGridSize - 1 && grid[row, col + 1] == building) count++;
-            return count;
+            Console.WriteLine(new string('-', 10) + "FREEPLAY MODE" + new string('-', 10) + "\n");
+            Console.WriteLine($"Turn: {turn}");
+            Console.WriteLine($"Coins: {coins}");
+            Console.WriteLine($"Points: {points}");
+            Console.WriteLine($"Profit: {profit}");
+            Console.WriteLine($"Upkeep: {upkeep}\n");
         }
 
         private void MarkCluster(int row, int col, char building, bool[,] visited)
@@ -260,13 +174,26 @@ namespace NgeeAnnCity
                 Console.WriteLine();
             }
         }
-
-        private void DisplayInfo(int turn)
+        private char GetUserBuilding()
         {
-            Console.WriteLine($"Turn: {turn}");
-            Console.WriteLine($"Score: {score}");
-            Console.WriteLine($"Profit: {profit}");
-            Console.WriteLine($"Upkeep: {upkeep}");
+            while (true)
+            {
+                Console.Write("Choose a building to construct (R, I, C, O, *): ");
+                string? choice = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(choice) || !"RICO*".Contains(choice.ToUpper()) || choice.Length != 1)
+                {
+                    Console.WriteLine("Invalid choice, try again.");
+                    continue;
+                }
+                return char.Parse(choice.ToUpper());
+            }
+        }
+        
+
+        private void ExpandMap(int expansionCount)
+        {
+            InitializeGrid(InitialGridSize + (10 * expansionCount)); /* doesnt this reset the board without saving the building placed*/
         }
     }
 }
