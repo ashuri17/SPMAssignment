@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,14 @@ namespace NgeeAnnCity
     {
         private int size;
         private char[,] grid;
+        private Dictionary<Point, char> buildingDict;
+        const int expansionSize = 5;
 
         public Board(int size)
         {
             this.size = size;
             grid = new char[size, size];
+            buildingDict = new Dictionary<Point, char>();
         }
 
         internal void Initialize()
@@ -125,7 +129,7 @@ namespace NgeeAnnCity
             return rows;
         }
 
-        internal void PlaceBuilding(char building)
+        internal void PlaceBuilding(char building, bool check = false)
         {
             int x, y;
 
@@ -160,23 +164,65 @@ namespace NgeeAnnCity
                     break;
                 }
 
+                x--;
+                y--;
+
                 // check if spot is taken
-                if (grid[x-1, y-1] != '.')
+                if (grid[x, y] != '.')
                 {
                     Console.WriteLine("Spot taken.\n");
                 }
                 else
                 {
-                    grid[x-1, y-1] = building;
+                    grid[x, y] = building;
+                    StoreBuilding(building, x, y);
+                    if (check)
+                    {
+                        if (TouchingBorder(x, y))
+                        {
+                            ExpandGrid();
+                        }
+                    }
                     break;
                 }
             }
         }
 
-
         internal char GetBuilding(int row, int column)
         {
             return grid[row, column];
+        }
+
+        internal void StoreBuilding(char building, int row, int column)
+        {
+            buildingDict.Add(new Point(row, column), building);
+        }
+
+        internal bool TouchingBorder(int row, int column)
+        {
+            return (row == 0 || row == size || column == 0 || column == size);
+        }
+
+        internal void ExpandGrid()
+        {
+            size += expansionSize * 2;
+            grid = new char[size, size];
+            Initialize();
+            foreach (var buildingInfo in buildingDict.ToList())
+            {
+                Point coords = buildingInfo.Key;
+                char building = buildingInfo.Value;
+                coords.X += 5;
+                coords.Y += 5;
+                grid[coords.X, coords.Y] = building;
+                buildingDict.Remove(new Point(coords.X - 5, coords.Y - 5));
+                buildingDict.Add(new Point(coords.X, coords.Y), building);
+            }
+        }
+
+        internal int GetSize()
+        {
+            return size;
         }
     }
 }

@@ -6,7 +6,6 @@ namespace NgeeAnnCity
 {
     class FreePlayGame
     {
-        private int size = 5;
         private Board board;
         private int coins;
         private int points;
@@ -23,7 +22,7 @@ namespace NgeeAnnCity
             profit = 0;
             upkeep = 0;
             turn = 0;
-            board = new Board(size);
+            board = new Board(5);
         }
 
         public void Start()
@@ -32,51 +31,39 @@ namespace NgeeAnnCity
             PlayGame();
         }
 
-        /*public void PlayGame()
+        public void PlayGame()
         {
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("\x1b[3J");
+                //Console.Clear();
+                //Console.WriteLine("\x1b[3J");
                 turn++;
                 board.Display();
                 DisplayInfo();
-
-            if (row >= 0 && row < InitialGridSize && col >= 0 && col < InitialGridSize && grid[row, col] == '.')
-            {
-                grid[row, col] = building;
-                if (row == 0 || row == (4 + 10 * expansionCount) || col == 0 || col== 4 + 10 * expansionCount) //Check for building placement on border
-                {
-                    expansionCount++;
-                    ExpandMap(expansionCount);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Please input an integer for the grid's row and column");
-                Console.ReadKey();
                 char building = GetUserBuilding();
-                board.PlaceBuilding(building);
+                board.PlaceBuilding(building, true);
+                UpdateScoresandFinances();
             }
-        }*/
+        }
 
         private void UpdateScoresandFinances()
         {
-            score = 0;
+            points = 0;
             profit = 0;
             upkeep = 0;
-            bool[,] visited = new bool[InitialGridSize, InitialGridSize];
-            for (int i = 0; i < InitialGridSize; i++)
+            int size = board.GetSize();
+            bool[,] visited = new bool[size, size];
+            for (int i = 0; i < size; i++)
             {
-                for (int j = 0; j < InitialGridSize; j++)
+                for (int j = 0; j < size; j++)
                 {
-                    char building = grid[i, j];
+                    char building = board.GetBuilding(i, j);
                     if (building != '.')
                     {
                         switch (building)
                         {
                             case 'R':
-                                score += CalculateResidentialScore(i, j);
+                                points += CalculateResidentialScore(i, j);
                                 profit += 1;
                                 if (!visited[i, j])
                                 {
@@ -92,21 +79,21 @@ namespace NgeeAnnCity
                                 }
                                 break;
                             case 'I':
-                                score += CalculateIndustryScore();
+                                points += CalculateIndustryScore();
                                 profit += 2;
                                 upkeep += 1;
                                 break;
                             case 'C':
-                                score += CalculateCommercialScore(i, j);
+                                points += CalculateCommercialScore(i, j);
                                 profit += 3;
                                 upkeep += 2;
                                 break;
                             case 'O':
-                                score += CalculateParkScore(i, j);
+                                points += CalculateParkScore(i, j);
                                 upkeep += 1;
                                 break;
                             case '*':
-                                score += CalculateRoadScore(i);
+                                points += CalculateRoadScore(i);
                                 if (!IsAdjacentTo(i, j, 'R') && !IsAdjacentTo(i, j, 'I') &&
                                     !IsAdjacentTo(i, j, 'C') && !IsAdjacentTo(i, j, 'O') &&
                                     !IsAdjacentTo(i, j, '*'))   //checks if road is NOT adjacent to any other buildings
@@ -122,13 +109,75 @@ namespace NgeeAnnCity
 
         private int CalculateResidentialScore(int row, int col)
         {
-            int score = 0;
+            int points = 0;
             if (IsAdjacentTo(row, col, 'I'))
             {
                 return 1;
             }
-            score += CountAdjacent(row, col, 'R') + CountAdjacent(row, col, 'C') + 2 * CountAdjacent(row, col, 'O');
-            return score;
+            points += CountAdjacent(row, col, 'R') + CountAdjacent(row, col, 'C') + 2 * CountAdjacent(row, col, 'O');
+            return points;
+        }
+
+        private int CalculateIndustryScore()
+        {
+            int industryCount = 0;
+            int size = board.GetSize();
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    if (board.GetBuilding(i, j) == 'I')
+                    {
+                        industryCount++;
+                    }
+                }
+            }
+            return industryCount;
+        }
+
+        private int CalculateCommercialScore(int row, int col)
+        {
+            return CountAdjacent(row, col, 'C');
+        }
+
+        private int CalculateParkScore(int row, int col)
+        {
+            return CountAdjacent(row, col, 'O');
+        }
+
+        private int CalculateRoadScore(int row)
+        {
+            int roadScore = 0;
+
+            for (int col = 0; col < board.GetSize(); col++)
+            {
+                if (board.GetBuilding(row, col) == '*')
+                {
+                    roadScore++;
+                }
+            }
+            return roadScore;
+        }
+
+        private bool IsAdjacentTo(int row, int col, char building)
+        {
+            int size = board.GetSize();
+
+            return (row > 0 && board.GetBuilding(row - 1, col) == building) ||
+                   (row < size - 1 && board.GetBuilding(row + 1, col) == building) ||
+                   (col > 0 && board.GetBuilding(row, col - 1) == building) ||
+                   (col < size - 1 && board.GetBuilding(row, col + 1) == building);
+        }
+
+        private int CountAdjacent(int row, int col, char building)
+        {
+            int count = 0;
+            int size = board.GetSize();
+            if (row > 0 && board.GetBuilding(row - 1, col) == building) count++;
+            if (row < size - 1 && board.GetBuilding(row + 1, col) == building) count++;
+            if (col > 0 && board.GetBuilding(row, col - 1) == building) count++;
+            if (col < size - 1 && board.GetBuilding(row, col + 1) == building) count++;
+            return count;
         }
         private void DisplayInfo() 
         {
@@ -143,14 +192,16 @@ namespace NgeeAnnCity
         private void MarkCluster(int row, int col, char building, bool[,] visited)
         {
             Queue<(int, int)> queue = new Queue<(int, int)>();
+            int size = board.GetSize();
             queue.Enqueue((row, col));  //enqueues the 'R' cell coords to check for cluster
 
             while (queue.Count > 0)
             {
                 var (currentRow, currentCol) = queue.Dequeue(); //get first cell coords from queue
-                if (currentRow >= 0 && currentRow < InitialGridSize && currentCol >= 0 && currentCol < InitialGridSize
-                    && grid[currentRow, currentCol] == building && !visited[currentRow, currentCol]) /*checks if grid[currentRow, currentCol] is 'R' and is a cell that has NOT been visited,
-                                                                                                      code exits out of loop if particular cell is not 'R'*/
+
+                /*checks if grid[currentRow, currentCol] is 'R' and is a cell that has NOT been visited, code exits out of loop if particular cell is not 'R'*/
+                if (currentRow >= 0 && currentRow < size && currentCol >= 0 && currentCol < size
+                    && board.GetBuilding(currentRow, currentCol) == building && !visited[currentRow, currentCol]) 
                 {
                     visited[currentRow, currentCol] = true; //sets particular cell as a 'visited' cell to prevent UpdateScoresandFinances() from tracking this cell
 
@@ -162,18 +213,7 @@ namespace NgeeAnnCity
                 }
             }
         }
-        private void DisplayGrid()
-        {
-            Console.WriteLine("Current Map:");
-            for (int i = 0; i < InitialGridSize; i++)
-            {
-                for (int j = 0; j < InitialGridSize; j++)
-                {
-                    Console.Write(grid[i, j]);
-                }
-                Console.WriteLine();
-            }
-        }
+
         private char GetUserBuilding()
         {
             while (true)
@@ -188,12 +228,6 @@ namespace NgeeAnnCity
                 }
                 return char.Parse(choice.ToUpper());
             }
-        }
-        
-
-        private void ExpandMap(int expansionCount)
-        {
-            InitializeGrid(InitialGridSize + (10 * expansionCount)); /* doesnt this reset the board without saving the building placed*/
         }
     }
 }
