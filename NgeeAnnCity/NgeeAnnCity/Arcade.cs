@@ -96,7 +96,7 @@ namespace NgeeAnnCity
                 "Residential" => 'R',
                 "Industry" => 'I',
                 "Commercial" => 'C',
-                "Park" => 'P',
+                "Park" => 'O',
                 "Road" => '*',
                 _ => '.',
             };

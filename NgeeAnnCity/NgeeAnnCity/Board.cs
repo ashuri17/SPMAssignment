@@ -200,7 +200,8 @@ namespace NgeeAnnCity
 
         internal bool TouchingBorder(int row, int column)
         {
-            return (row == 0 || row == size || column == 0 || column == size);
+            int maxIndex = size - 1;
+            return (row == 0 || row == maxIndex || column == 0 || column == maxIndex);
         }
 
         internal void ExpandGrid()
