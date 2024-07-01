@@ -129,7 +129,7 @@ namespace NgeeAnnCity
             return rows;
         }
 
-        internal void PlaceBuilding(char building, bool check = false)
+        internal void PlaceBuilding(char building, bool freeplay = true)
         {
             int x, y;
 
@@ -176,20 +176,22 @@ namespace NgeeAnnCity
                 {
                     grid[x, y] = building;
                     StoreBuilding(building, x, y);
-                    if (check)
-                    {
-                        if (TouchingBorder(x, y))
-                        {
-                            ExpandGrid();
-                        }
-                    }
-                    break;
                 }
+
+                if (freeplay)
+                {
+                    if (TouchingBorder(x, y))
+                    {
+                        ExpandGrid();
+                    }
+                }
+                break;
             }
         }
 
         internal char GetBuilding(int row, int column)
         {
+            Console.WriteLine($"{row}, {column}");
             return grid[row, column];
         }
 

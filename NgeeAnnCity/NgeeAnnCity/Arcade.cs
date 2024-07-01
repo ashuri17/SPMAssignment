@@ -34,8 +34,8 @@ namespace NgeeAnnCity
         {
             while (coins > 0)
             {
-                //Console.Clear();
-                //Console.WriteLine("\x1b[3J");
+                Console.Clear();
+                Console.WriteLine("\x1b[3J");
                 turn++;
                 board.Display();
                 DisplayStats();
@@ -48,7 +48,7 @@ namespace NgeeAnnCity
                 char buildingSymbol = GetBuildingSymbol(chosenBuilding);
 
                 // Place the chosen building
-                board.PlaceBuilding(buildingSymbol);
+                board.PlaceBuilding(buildingSymbol, false);
 
                 // Update game state
                 coins -= 1;
@@ -228,15 +228,16 @@ namespace NgeeAnnCity
 
         private bool IsAdjacentTo(int row, int col, char building)
         {
+            // 19 0
             return IsOrthogonallyAdjacent(row, col, building) || IsConnectedViaRoad(row, col);
         }
 
         private bool IsOrthogonallyAdjacent(int row, int col, char building)
         {
             return (row > 0 && board.GetBuilding(row - 1, col) == building) ||  //Up
-                   (row < 20 && board.GetBuilding(row + 1, col) == building) || //Down
+                   (row < 19 && board.GetBuilding(row + 1, col) == building) || //Down
                    (col > 0 && board.GetBuilding(row, col - 1) == building) ||  //Left
-                   (col < 20 - 1 && board.GetBuilding(row, col + 1) == building);   //Right
+                   (col < 19 && board.GetBuilding(row, col + 1) == building);   //Right
         }
 
 
@@ -291,19 +292,26 @@ namespace NgeeAnnCity
 
         private bool IsAdjacent(int row, int col, char ignoreBuilding)
         {
+            Console.WriteLine($"IsAdjacent {row} {col}");
+
             return (row > 0 && board.GetBuilding(row - 1, col) != ignoreBuilding) ||
-                   (row < 20 - 1 && board.GetBuilding(row + 1, col) != ignoreBuilding) ||
+                   (row < 19 && board.GetBuilding(row + 1, col) != ignoreBuilding) ||
                    (col > 0 && board.GetBuilding(row, col - 1) != ignoreBuilding) ||
-                   (col < 20 - 1 && board.GetBuilding(row, col + 1) != ignoreBuilding);
+                   (col < 19 && board.GetBuilding(row, col + 1) != ignoreBuilding);
         }
 
         private int CountAdjacent(int row, int col, char building)
         {
+            Console.WriteLine($"{row}, {col}, {building}");
             int count = 0;
-            if (row > 0 && board.GetBuilding(row - 1, col) == building) count++;
-            if (row < 20 - 1 && board.GetBuilding(row + 1, col) == building) count++;
-            if (col > 0 && board.GetBuilding(row, col - 1) == building) count++;
-            if (col < 20 - 1 && board.GetBuilding(row, col + 1) == building) count++;
+            if (row > 0 && board.GetBuilding(row - 1, col) == building) count++; // check left 
+            Console.WriteLine('1');
+            if (row < 19 && board.GetBuilding(row + 1, col) == building) count++; // check right
+            Console.WriteLine('2');
+            if (col > 0 && board.GetBuilding(row, col - 1) == building) count++; // check bottom
+            Console.WriteLine('3');
+            if (col < 19 && board.GetBuilding(row, col + 1) == building) count++; // check left
+            Console.WriteLine('4');
             return count;
         }
     }
