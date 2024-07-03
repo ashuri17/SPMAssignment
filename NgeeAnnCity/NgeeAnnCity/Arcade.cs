@@ -292,8 +292,6 @@ namespace NgeeAnnCity
 
         private bool IsAdjacent(int row, int col, char ignoreBuilding)
         {
-            Console.WriteLine($"IsAdjacent {row} {col}");
-
             return (row > 0 && board.GetBuilding(row - 1, col) != ignoreBuilding) ||
                    (row < 19 && board.GetBuilding(row + 1, col) != ignoreBuilding) ||
                    (col > 0 && board.GetBuilding(row, col - 1) != ignoreBuilding) ||
@@ -302,16 +300,11 @@ namespace NgeeAnnCity
 
         private int CountAdjacent(int row, int col, char building)
         {
-            Console.WriteLine($"{row}, {col}, {building}");
             int count = 0;
             if (row > 0 && board.GetBuilding(row - 1, col) == building) count++; // check left 
-            Console.WriteLine('1');
             if (row < 19 && board.GetBuilding(row + 1, col) == building) count++; // check right
-            Console.WriteLine('2');
             if (col > 0 && board.GetBuilding(row, col - 1) == building) count++; // check bottom
-            Console.WriteLine('3');
             if (col < 19 && board.GetBuilding(row, col + 1) == building) count++; // check left
-            Console.WriteLine('4');
             return count;
         }
     }
