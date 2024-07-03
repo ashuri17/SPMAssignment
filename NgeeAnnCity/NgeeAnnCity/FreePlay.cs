@@ -12,8 +12,8 @@ namespace NgeeAnnCity
         private int profit;
         private int upkeep;
         private int turn;
-        private int firstRow = 1;
-        private int firstCol = 1;
+        private int firstRow = 0;
+        private int firstCol = 0;
         private int screenSize = 25;
 
         public FreePlayGame()
@@ -23,7 +23,7 @@ namespace NgeeAnnCity
             profit = 0;
             upkeep = 0;
             turn = 0;
-            board = new Board(50);
+            board = new Board(40);
         }
 
         public void Start()
@@ -254,7 +254,7 @@ namespace NgeeAnnCity
         {
             Console.Clear();
             Console.WriteLine("\x1b[3J");
-            board.Display();
+            board.Display(firstRow, firstCol, screenSize);
             DisplayInfo();
         }
 
@@ -266,18 +266,16 @@ namespace NgeeAnnCity
             while (!end)
             {
                 DisplayScreen();
-                Console.WriteLine(firstRow);
-                Console.WriteLine(firstCol);
                 Console.WriteLine("w - Up, a - Left, s - Down, d - Right, q - Quit");
 
                 direction = Console.ReadKey().KeyChar;
                 switch (direction)
                 {
                     case 'w':
-                        firstCol = firstCol - screenSize < 1 ? 1 : firstCol - screenSize;
+                        firstCol = firstCol - screenSize < 0 ? 0 : firstCol - screenSize;
                         break;
                     case 'a':
-                        firstRow = firstRow - screenSize < 1 ? 1 : firstRow - screenSize;
+                        firstRow = firstRow - screenSize < 0 ? 0 : firstRow - screenSize;
                         break;
                     case 's':
                         firstCol = firstCol + screenSize > board.GetSize() - screenSize ? board.GetSize() - screenSize : firstCol + screenSize;
