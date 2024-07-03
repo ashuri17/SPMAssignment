@@ -14,7 +14,7 @@ namespace NgeeAnnCity
         private int turn;
         private int firstRow = 0;
         private int firstCol = 0;
-        private int screenSize = 25;
+        private int maxScreenSize = 25;
 
         public FreePlayGame()
         {
@@ -23,7 +23,7 @@ namespace NgeeAnnCity
             profit = 0;
             upkeep = 0;
             turn = 0;
-            board = new Board(40);
+            board = new Board(30);
         }
 
         public void Start()
@@ -38,7 +38,7 @@ namespace NgeeAnnCity
             {
                 turn++;
                 DisplayScreen();
-                if (board.GetSize() > screenSize)
+                if (board.GetSize() > maxScreenSize)
                 {
                     while (true)
                     {
@@ -254,7 +254,15 @@ namespace NgeeAnnCity
         {
             Console.Clear();
             Console.WriteLine("\x1b[3J");
-            board.Display(firstRow, firstCol, screenSize);
+            if (board.GetSize() < maxScreenSize)
+            {
+                board.Display(firstRow, firstCol, board.GetSize());
+            }
+            else
+            {
+                board.Display(firstRow, firstCol, maxScreenSize);
+
+            }
             DisplayInfo();
         }
 
@@ -272,16 +280,16 @@ namespace NgeeAnnCity
                 switch (direction)
                 {
                     case 'w':
-                        firstCol = firstCol - screenSize < 0 ? 0 : firstCol - screenSize;
+                        firstRow = firstRow - maxScreenSize < 0 ? 0 : firstRow - maxScreenSize; // 0 = 0 - 25 < 0 ? 0 : 0 - 25
                         break;
                     case 'a':
-                        firstRow = firstRow - screenSize < 0 ? 0 : firstRow - screenSize;
+                        firstCol = firstCol - maxScreenSize < 0 ? 0 : firstCol - maxScreenSize;
                         break;
                     case 's':
-                        firstCol = firstCol + screenSize > board.GetSize() - screenSize ? board.GetSize() - screenSize : firstCol + screenSize;
+                        firstRow = firstRow + maxScreenSize > board.GetSize() - maxScreenSize ? board.GetSize() - maxScreenSize : firstRow + maxScreenSize; // 0 = 0 + 25 > 15 ? 15 : 25 => 15
                         break;
                     case 'd':
-                        firstRow = firstRow + screenSize > board.GetSize() - screenSize ? board.GetSize() - screenSize : firstRow + screenSize;
+                        firstCol = firstCol + maxScreenSize > board.GetSize() - maxScreenSize ? board.GetSize() - maxScreenSize : firstCol + maxScreenSize;
                         break;
                     case 'q':
                         end = true;

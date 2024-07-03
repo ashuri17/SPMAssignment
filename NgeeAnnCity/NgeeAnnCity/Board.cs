@@ -32,13 +32,13 @@ namespace NgeeAnnCity
             }
         }
 
-        internal void Display(int startRow = 0, int startCol = 0, int width = 20)
+        internal void Display(int startRow = 0, int startCol = 0, int width = 20) // 0, 5
         {
             int horizontalPadding = (startRow + width).ToString().Length + 1;
             int verticalPadding = (startCol + width).ToString().Length + 1;
 
             // get grid labels
-            char[][] gridLabels = GetGridLabels(startRow + 1, width);
+            char[][] gridLabels = GetGridLabels(startCol + 1, width); // 1, 25
 
             // print top grid labels
             for (int i = 0; i < gridLabels.Length; i++)
@@ -46,16 +46,16 @@ namespace NgeeAnnCity
                 Console.Write(new String(' ', horizontalPadding + 2));
                 Console.WriteLine(string.Join(" ", gridLabels[i]));
             }
-
+            
             Console.WriteLine();
 
             // print grid
-            for (int i = startRow; i < startRow + width; i++)
+            for (int i = startRow; i < startRow + width; i++) 
             {
                 // grid label on the left
-                Console.Write($"{startCol + (i - startRow) + 1}".PadLeft(verticalPadding) + "  ");
+                Console.Write($"{i + 1}".PadLeft(verticalPadding) + "  ");
 
-                for (int j = startCol; j < startCol + width; j++)
+                for (int j = startCol; j < startCol + width; j++) 
                 {
                     Console.Write(grid[i, j] + " ");
                 }
@@ -65,18 +65,18 @@ namespace NgeeAnnCity
             Console.WriteLine("\n\n");
         }
 
-        private char[][] GetGridLabels(int startRow = 1, int width = 20)
+        private char[][] GetGridLabels(int startCol = 1, int width = 20) // 6, 31
         {
-            int endRow = startRow + width;
+            int endCol = startCol + width; // 30
 
             // Get each number to print
-            int[] numbers = Enumerable.Range(startRow, endRow).ToArray();
+            int[] numbers = Enumerable.Range(startCol, endCol).ToArray(); // 6..30
 
             // Convert each number to a string
             string[] numberStrings = numbers.Select(i => i.ToString()).ToArray();
 
             // number of digits the largest number has
-            int maxLength = endRow.ToString().Length;
+            int maxLength = endCol.ToString().Length; 
 
             // Number of rows the array should have
             char[][] rows = new char[maxLength][];
@@ -84,7 +84,7 @@ namespace NgeeAnnCity
             // Number of columns (digits) each row should have
             for (int i = 0; i < maxLength; i++)
             {
-                rows[i] = new char[endRow];
+                rows[i] = new char[endCol];
             }
 
             // Iterate through each number
