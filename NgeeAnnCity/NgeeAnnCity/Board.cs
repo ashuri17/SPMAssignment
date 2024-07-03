@@ -32,12 +32,12 @@ namespace NgeeAnnCity
             }
         }
 
-        internal void Display(int startRow = 0, int startCol = 0, int width = 25)
+        internal void Display()
         {
-            int horizontalPadding = (startRow + width).ToString().Length + 1;
+            int horizontalPadding = size.ToString().Length + 1;
 
             // get grid labels
-            char[][] gridLabels = GetGridLabels(startRow + 1, startCol + 1);
+            char[][] gridLabels = GetGridLabels();
 
             // print top grid labels
             for (int i = 0; i < gridLabels.Length; i++)
@@ -64,7 +64,7 @@ namespace NgeeAnnCity
             Console.WriteLine("\n\n");
         }
 
-        private char[][] GetGridLabels(int startRow = 1, int startCol = 1, int width = 25)
+        private char[][] GetGridLabels()
         {
             // Get each number to print
             int[] numbers = Enumerable.Range(1, size).ToArray();
