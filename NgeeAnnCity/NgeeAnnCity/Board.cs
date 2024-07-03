@@ -167,6 +167,7 @@ namespace NgeeAnnCity
                 if (grid[x, y] != '.')
                 {
                     Console.WriteLine("Spot taken.\n");
+                    continue;
                 }
                 else
                 {
