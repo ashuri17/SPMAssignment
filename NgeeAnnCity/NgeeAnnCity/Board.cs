@@ -187,7 +187,6 @@ namespace NgeeAnnCity
 
         internal char GetBuilding(int row, int column)
         {
-            Console.WriteLine($"{row}, {column}");
             return grid[row, column];
         }
 
