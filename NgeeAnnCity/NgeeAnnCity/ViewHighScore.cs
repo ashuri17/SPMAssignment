@@ -66,7 +66,7 @@ namespace NgeeAnnCity
             }
             // Bottom border
             Console.WriteLine(new string('-', totalWidth + 1));
-            return highScoreFile;
+            return highScoreFile;   //for Free Play EndGame
         }
     }
 }

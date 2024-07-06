@@ -18,7 +18,7 @@ namespace NgeeAnnCity
         {
             board = new Board(20);
             turn = 0;
-            coins = 16;
+            coins = 5;
             points = 0;
             buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
             random = new Random();
@@ -32,7 +32,7 @@ namespace NgeeAnnCity
 
         private void PlayGame()
         {
-            while (coins > 0)
+            while (coins > 0 && isGridFull())   //end game conditions
             {
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
@@ -56,7 +56,8 @@ namespace NgeeAnnCity
                 Console.WriteLine("Press any key for the next turn...");
                 Console.ReadKey();
             }
-            Console.WriteLine("Game over! You've run out of coins.");
+            Console.Clear();
+            DisplayEndGame();
         }
 
         private List<string> SelectBuildings()
@@ -302,17 +303,98 @@ namespace NgeeAnnCity
 
         private int CountAdjacent(int row, int col, char building)
         {
-            Console.WriteLine($"{row}, {col}, {building}");
             int count = 0;
             if (row > 0 && board.GetBuilding(row - 1, col) == building) count++; // check left 
-            Console.WriteLine('1');
             if (row < 19 && board.GetBuilding(row + 1, col) == building) count++; // check right
-            Console.WriteLine('2');
             if (col > 0 && board.GetBuilding(row, col - 1) == building) count++; // check bottom
-            Console.WriteLine('3');
             if (col < 19 && board.GetBuilding(row, col + 1) == building) count++; // check left
-            Console.WriteLine('4');
             return count;
+        }
+
+        private bool isGridFull()
+        {
+            for (int row = 0; row < 20; row++)
+            {
+                for (int  col = 0; col < 20; col++)
+                {
+                    if (board.GetBuilding(row, col) == '.')
+                    {
+                        return true;   //board contains an empty cell
+                    }
+                }
+            }
+            return false;    //board no longer has an empty cell for a building to be constructed
+        }
+
+        //End Game Display
+        private void DisplayEndGame()
+        {
+            Console.Clear();
+            string[] lines = {
+                 "GAME END",
+                 $"Score: {points}",
+                 $"Total Turns: {turn}",
+                 "Press any key to continue..."
+            };
+
+            int width = lines.Max(line => line.Length) + 4;
+            string horizontalBorder = new string('_', width);   //top border
+
+            Console.WriteLine(horizontalBorder);
+            //create box to display final info
+            foreach (var line in lines)
+            {
+                int padding = width - line.Length - 2;
+                string paddedLine = $"| {line}{new string(' ', padding)}|";     //adds | to each line in lines array
+                Console.WriteLine(paddedLine);
+            }
+            Console.WriteLine(horizontalBorder);    //bottom border
+
+            Console.ReadKey();
+            EditHighScores();
+        }
+
+
+        private void EditHighScores()
+        {
+            List<(string name, int score)> highScoresList = new List<(string name, int score)>();
+
+            string[] arcadeHighScores = HighScores.ViewArcade();
+
+            foreach (string line in arcadeHighScores)
+            {
+                string[] parts = line.Split(',');   //splits the playerName and points
+                highScoresList.Add((parts[0], int.Parse(parts[1])));
+            }
+
+            if (points > highScoresList[^1].score)  //this checks if current player points is greater than the last score on the highscoreList
+            {
+                string? playerName = null;
+                Console.WriteLine("Congrats on achieving a new high score!");
+
+                //loops till playerName is no longer null
+                while (string.IsNullOrEmpty(playerName))
+                {
+                    Console.Write("Please enter your name: ");
+                    playerName = Console.ReadLine();
+                }
+
+                highScoresList.Add((playerName, points));
+                highScoresList.Sort((x, y) => y.score.CompareTo(x.score));  //sorts list in descending order of score
+                if (highScoresList.Count > 10)
+                {
+                    highScoresList.RemoveAt(10);    //ensures list only contains 10 entries
+                }
+                using (StreamWriter sw = new StreamWriter("arcadehighscores.csv", false))
+                {
+                    foreach (var (name, score) in highScoresList)
+                    {
+                        sw.WriteLine($"{name},{score}");    //write back to csv file
+                    }
+                }
+            }
+            Console.WriteLine("Enter anything to continue");
+            Console.ReadKey();
         }
     }
 }
