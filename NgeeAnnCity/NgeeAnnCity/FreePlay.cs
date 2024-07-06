@@ -12,6 +12,7 @@ namespace NgeeAnnCity
         private int profit;
         private int upkeep;
         private int turn;
+        private int endGameTurns;
 
         private int expansionCount = 0;
 
@@ -22,6 +23,7 @@ namespace NgeeAnnCity
             profit = 0;
             upkeep = 0;
             turn = 0;
+            endGameTurns = 0;
             board = new Board(5);
         }
 
@@ -43,6 +45,16 @@ namespace NgeeAnnCity
                 char building = GetUserBuilding();
                 board.PlaceBuilding(building, true);
                 UpdateScoresandFinances();
+                if (EndGame())
+                {
+                    endGameTurns++;
+                    if (endGameTurns == 20)
+                    {
+                        DisplayEndGame();
+                        break;
+                    }
+                }
+                else { endGameTurns = 0; }  // resets end game turns back to 0 when profit is greater than upkeep
             }
         }
 
@@ -228,6 +240,80 @@ namespace NgeeAnnCity
                 }
                 return char.Parse(choice.ToUpper());
             }
+        }
+        private bool EndGame()
+        {
+            if (profit < upkeep)
+            {
+                return true;
+            }
+            return false;
+        }
+        private void DisplayEndGame()
+        {
+            Console.Clear();
+            string[] lines = {
+                 "GAME END",
+                 $"Score: {points}",
+                 $"Total Turns: {turn}",
+                 "Press any key to continue..."
+            };
+
+            int width = lines.Max(line => line.Length) + 4;
+            string horizontalBorder = new string('_', width);   //top border
+
+            Console.WriteLine(horizontalBorder);
+            //create box to display final info
+            foreach (var line in lines)
+            {
+                int padding = width - line.Length - 2;
+                string paddedLine = $"| {line}{new string(' ', padding)}*";     //adds | to each line in lines array
+                Console.WriteLine(paddedLine);
+            }
+            Console.WriteLine(horizontalBorder);    //bottom border
+
+            Console.ReadKey();
+            EditHighScores();
+        }
+
+        private void EditHighScores()
+        {
+            List<(string name, int score)> highScoresList = new List<(string name, int score)>();
+
+            string[] freeplayHighScores = HighScores.ViewFreePlay();
+
+            foreach (string line in freeplayHighScores)
+            {
+                string[] parts = line.Split(',');   //splits the playerName and points
+                highScoresList.Add((parts[0], int.Parse(parts[1])));
+            }
+            if (points > highScoresList[^1].score)
+            {
+                string? playerName = null;
+                Console.WriteLine("Congrats on achieving a new high score!");
+                //loops till playerName is no longer null
+                while (string.IsNullOrEmpty(playerName))
+                {
+                    Console.Write("Please enter your name: ");
+                    playerName = Console.ReadLine();
+                }
+
+                highScoresList.Add((playerName, points));
+                highScoresList.Sort((x, y) => y.score.CompareTo(x.score));  //sorts list in descending order of score
+                if (highScoresList.Count > 10)
+                {
+                    highScoresList.RemoveAt(10);    //ensurs list only contains 10 entries
+                }
+                using (StreamWriter sw = new StreamWriter("freeplayhighscores.csv", false))
+                {
+                    foreach (var (name, score) in highScoresList)
+                    {
+                        sw.WriteLine($"{name},{score}");    //write back to csv file
+                    }
+                }
+            }
+            Console.WriteLine("Enter anything to continue");
+            Console.ReadKey();
         }
     }
 }
