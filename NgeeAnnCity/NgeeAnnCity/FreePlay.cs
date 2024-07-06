@@ -48,7 +48,7 @@ namespace NgeeAnnCity
                 if (EndGame())
                 {
                     endGameTurns++;
-                    if (endGameTurns == 20)
+                    if (endGameTurns == 5)
                     {
                         DisplayEndGame();
                         break;
@@ -267,7 +267,7 @@ namespace NgeeAnnCity
             foreach (var line in lines)
             {
                 int padding = width - line.Length - 2;
-                string paddedLine = $"| {line}{new string(' ', padding)}*";     //adds | to each line in lines array
+                string paddedLine = $"| {line}{new string(' ', padding)}|";     //adds | to each line in lines array
                 Console.WriteLine(paddedLine);
             }
             Console.WriteLine(horizontalBorder);    //bottom border
