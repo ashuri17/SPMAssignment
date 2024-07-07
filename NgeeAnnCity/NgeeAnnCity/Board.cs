@@ -260,7 +260,7 @@ namespace NgeeAnnCity
             return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building);
         }
 
-        public bool IsOrthogonallyAdjacent(int row, int col, char building)
+        public bool IsOrthogonallyAdjacent(int row, int col, char building) //a check function to check if buildings are orthogonally adjacent to a specific building type
         {
             return (row > 0 && GetBuilding(row - 1, col) == building) ||  //Up
                    (row < size-1 && GetBuilding(row + 1, col) == building) || //Down
@@ -269,7 +269,7 @@ namespace NgeeAnnCity
         }
 
 
-        public bool IsDiagonallyAdjacentTo(int row, int col, char building)
+        public bool IsDiagonallyAdjacentTo(int row, int col, char building) //a check function to check if buildings are diagonally adjacent to a specific building type
         {
             return (row > 0 && col > 0 && GetBuilding(row - 1, col - 1) == building) || // Up-Left
                    (row > 0 && col < size - 1 && GetBuilding(row - 1, col + 1) == building) || // Up-Right
@@ -279,7 +279,7 @@ namespace NgeeAnnCity
 
 
 
-        public int CountAdjacent(int row, int col, char building)
+        public int CountAdjacent(int row, int col, char building) // count the number of the specified building type adjacent to the current building
         {
             int count = 0;
 

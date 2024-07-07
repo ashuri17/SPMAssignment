@@ -32,7 +32,7 @@ namespace NgeeAnnCity
 
         private void PlayGame()
         {
-            while (coins > 0 && board.isGridFull())   //end game conditions
+            while (coins > 0 && !board.isGridFull())   //end game conditions
             {
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
@@ -129,14 +129,14 @@ namespace NgeeAnnCity
                                 break;
                             case 'I':
                                 points += 1;
-                                profit += board.CountAdjacent(i, j, 'R');
+                                profit += board.CountAdjacent(i, j, 'R'); // counts how many residential buildings are adjacent to it, to add the coins
                                 break;
                             case 'C':
                                 points += CalculateCommercialScore(i, j);
-                                profit += board.CountAdjacent(i, j, 'R');
+                                profit += board.CountAdjacent(i, j, 'R'); // counts how many residential buildings are adjacent to it, to add the coins
                                 break;
                             case 'O':
-                                points += CalculateParkScore(i, j);
+                                points += CalculateParkScore(i, j); 
                                 break;
                             case '*':
                                 points += CalculateRoadScore(i,j);
@@ -166,7 +166,7 @@ namespace NgeeAnnCity
         private int CalculateResidentialScore(int row, int col)
         {
             int points = 0;
-            if (board.IsAdjacentTo(row, col, 'I'))
+            if (board.IsAdjacentTo(row, col, 'I')) // industry buildings only count once
             {
                 points += 1;
             }
