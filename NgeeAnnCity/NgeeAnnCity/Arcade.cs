@@ -18,7 +18,7 @@ namespace NgeeAnnCity
         {
             board = new Board(20);
             turn = 0;
-            coins = 5;
+            coins = 16;
             points = 0;
             buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
             random = new Random();
@@ -32,7 +32,7 @@ namespace NgeeAnnCity
 
         private void PlayGame()
         {
-            while (coins > 0 && isGridFull())   //end game conditions
+            while (coins > 0 && isGridFull() == false)   //end game conditions
             {
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
@@ -319,11 +319,11 @@ namespace NgeeAnnCity
                 {
                     if (board.GetBuilding(row, col) == '.')
                     {
-                        return true;   //board contains an empty cell
+                        return false;   //board contains an empty cell
                     }
                 }
             }
-            return false;    //board no longer has an empty cell for a building to be constructed
+            return true;    //board no longer has an empty cell for a building to be constructed
         }
 
         //End Game Display
@@ -393,7 +393,7 @@ namespace NgeeAnnCity
                     }
                 }
             }
-            Console.WriteLine("Enter anything to continue");
+            Console.WriteLine("Enter anything to continue...\n");
             Console.ReadKey();
         }
     }
