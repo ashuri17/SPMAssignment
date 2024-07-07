@@ -18,7 +18,7 @@ namespace NgeeAnnCity
         {
             board = new Board(20);
             turn = 0;
-            coins = 5;
+            coins = 16;
             points = 0;
             buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
             random = new Random();
@@ -32,7 +32,7 @@ namespace NgeeAnnCity
 
         private void PlayGame()
         {
-            while (coins > 0 && isGridFull())   //end game conditions
+            while (coins > 0 && board.isGridFull())   //end game conditions
             {
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
@@ -48,7 +48,7 @@ namespace NgeeAnnCity
                 char buildingSymbol = GetBuildingSymbol(chosenBuilding);
 
                 // Place the chosen building
-                board.PlaceBuilding(buildingSymbol, false);
+                board.PlaceBuilding(buildingSymbol,turn, false);
 
                 // Update game state
                 coins -= 1;
@@ -128,18 +128,18 @@ namespace NgeeAnnCity
                                 points += CalculateResidentialScore(i, j);
                                 break;
                             case 'I':
-                                points += CalculateIndustryScore();
-                                profit += CountAdjacent(i, j, 'R');
+                                points += 1;
+                                profit += board.CountAdjacent(i, j, 'R');
                                 break;
                             case 'C':
                                 points += CalculateCommercialScore(i, j);
-                                profit += CountAdjacent(i, j, 'R');
+                                profit += board.CountAdjacent(i, j, 'R');
                                 break;
                             case 'O':
                                 points += CalculateParkScore(i, j);
                                 break;
                             case '*':
-                                points += CalculateRoadScore(i);
+                                points += CalculateRoadScore(i,j);
                                 break;
                         }
                     }
@@ -166,164 +166,26 @@ namespace NgeeAnnCity
         private int CalculateResidentialScore(int row, int col)
         {
             int points = 0;
-            if (IsAdjacentTo(row, col, 'I'))
+            if (board.IsAdjacentTo(row, col, 'I'))
             {
-                return 1;
+                points += 1;
             }
-            points += CountAdjacent(row, col, 'R') + CountAdjacent(row, col, 'C') + 2 * CountAdjacent(row, col, 'O');
+            points += board.CountAdjacent(row, col, 'R') + board.CountAdjacent(row, col, 'C') + 2 * board.CountAdjacent(row, col, 'O');
             return points;
         }
-        private int CountAdjacentRoads(int row, int col)
-        {
-            int count = 0;
-            if (row > 0 && board.GetBuilding(row - 1, col) == '*') count++; // Up
-            if (row < 20 - 1 && board.GetBuilding(row + 1, col) == '*') count++; // Down
-            if (col > 0 && board.GetBuilding(row, col - 1) == '*') count++; // Left
-            if (col < 20 - 1 && board.GetBuilding(row, col + 1) == '*') count++; // Right
-            return count;
-        }
-
-        private int CalculateIndustryScore()
-        {
-            int industryCount = 0;
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    if (board.GetBuilding(i, j) == 'I')
-                    {
-                        industryCount++;
-                    }
-                }
-            }
-            return industryCount;
-        }
-
         private int CalculateCommercialScore(int row, int col)
         {
-            return CountAdjacent(row, col, 'C');
+            return board.CountAdjacent(row, col, 'C');
         }
 
         private int CalculateParkScore(int row, int col)
         {
-            return CountAdjacent(row, col, 'O');
+            return board.CountAdjacent(row, col, 'O');
         }
 
-        private int CalculateRoadScore(int row)
+        private int CalculateRoadScore(int row,int col)
         {
-            int max = 0;
-            int temp = 0;
-            int roadScore = -1;
-            for (int col = 0; col < 20; col++)
-            {
-                if (board.GetBuilding(row, col) == '*')
-                {
-                    temp++;
-                } else if (temp > max)
-                {
-                    max = temp;
-                }
-            }
-            return max;
-        }
-
-        private bool IsAdjacentTo(int row, int col, char building)
-        {
-            // 19 0
-            return IsOrthogonallyAdjacent(row, col, building) || IsConnectedViaRoad(row, col);
-        }
-
-        private bool IsOrthogonallyAdjacent(int row, int col, char building)
-        {
-            return (row > 0 && board.GetBuilding(row - 1, col) == building) ||  //Up
-                   (row < 19 && board.GetBuilding(row + 1, col) == building) || //Down
-                   (col > 0 && board.GetBuilding(row, col - 1) == building) ||  //Left
-                   (col < 19 && board.GetBuilding(row, col + 1) == building);   //Right
-        }
-
-
-        private bool IsDiagonallyAdjacent(int row, int col)
-        {
-            return (row > 0 && col > 0 && board.GetBuilding(row - 1, col - 1) != '.') || // Up-Left
-                   (row > 0 && col < 20 - 1 && board.GetBuilding(row - 1, col + 1) != '.') || // Up-Right
-                   (row < 20 - 1 && col > 0 && board.GetBuilding(row + 1, col - 1) != '.') || // Down-Left
-                   (row < 20 - 1 && col < 20 - 1 && board.GetBuilding(row + 1, col + 1) != '.'); // Down-Right
-        }
-
-        private bool IsConnectedViaRoad(int row, int col)
-        {
-            bool[][] visited = new bool[20][];
-            for (int i = 0; i < 20; i++)
-            {
-                visited[i] = new bool[20];
-            }
-
-            return IsConnectedViaRoadRec(row, col, visited, true);
-        }
-
-        private bool IsConnectedViaRoadRec(int row, int col, bool[][] visited, bool first = false)
-        {
-
-            if (row < 0 || row >= 20 || col < 0 || col >= 20 || visited[row][col] || first)
-            {
-                return false;
-            }
-
-            visited[row][col] = true;
-
-            // checks for buildings that are not road
-            if (board.GetBuilding(row, col) != '*' && board.GetBuilding(row, col) != '.' )
-            {
-                return true;  // Found any building
-            }
-
-            // check for nothing
-            if (board.GetBuilding(row, col) != '*')
-            {
-                return false;  // No road found
-            }
-
-            // if it's road, run these checks
-            return IsConnectedViaRoadRec(row - 1, col, visited) ||
-                   IsConnectedViaRoadRec(row + 1, col, visited) ||
-                   IsConnectedViaRoadRec(row, col - 1, visited) ||
-                   IsConnectedViaRoadRec(row, col + 1, visited);
-        }
-
-
-        private bool IsAdjacent(int row, int col, char ignoreBuilding)
-        {
-            Console.WriteLine($"IsAdjacent {row} {col}");
-
-            return (row > 0 && board.GetBuilding(row - 1, col) != ignoreBuilding) ||
-                   (row < 19 && board.GetBuilding(row + 1, col) != ignoreBuilding) ||
-                   (col > 0 && board.GetBuilding(row, col - 1) != ignoreBuilding) ||
-                   (col < 19 && board.GetBuilding(row, col + 1) != ignoreBuilding);
-        }
-
-        private int CountAdjacent(int row, int col, char building)
-        {
-            int count = 0;
-            if (row > 0 && board.GetBuilding(row - 1, col) == building) count++; // check left 
-            if (row < 19 && board.GetBuilding(row + 1, col) == building) count++; // check right
-            if (col > 0 && board.GetBuilding(row, col - 1) == building) count++; // check bottom
-            if (col < 19 && board.GetBuilding(row, col + 1) == building) count++; // check left
-            return count;
-        }
-
-        private bool isGridFull()
-        {
-            for (int row = 0; row < 20; row++)
-            {
-                for (int  col = 0; col < 20; col++)
-                {
-                    if (board.GetBuilding(row, col) == '.')
-                    {
-                        return true;   //board contains an empty cell
-                    }
-                }
-            }
-            return false;    //board no longer has an empty cell for a building to be constructed
+            return board.CountAdjacentRow(row, col, '*');
         }
 
         //End Game Display

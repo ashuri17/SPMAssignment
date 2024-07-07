@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography.X509Certificates;
 
 namespace NgeeAnnCity
@@ -43,7 +43,7 @@ namespace NgeeAnnCity
                 board.Display();
                 DisplayInfo();
                 char building = GetUserBuilding();
-                board.PlaceBuilding(building, true);
+                board.PlaceBuilding(building,turn, true);
                 UpdateScoresandFinances();
                 if (EndGame())
                 {
@@ -191,7 +191,7 @@ namespace NgeeAnnCity
             if (col < size - 1 && board.GetBuilding(row, col + 1) == building) count++;
             return count;
         }
-        private void DisplayInfo() 
+        private void DisplayInfo()
         {
             Console.WriteLine(new string('-', 10) + "FREEPLAY MODE" + new string('-', 10) + "\n");
             Console.WriteLine($"Turn: {turn}");
@@ -213,7 +213,7 @@ namespace NgeeAnnCity
 
                 /*checks if grid[currentRow, currentCol] is 'R' and is a cell that has NOT been visited, code exits out of loop if particular cell is not 'R'*/
                 if (currentRow >= 0 && currentRow < size && currentCol >= 0 && currentCol < size
-                    && board.GetBuilding(currentRow, currentCol) == building && !visited[currentRow, currentCol]) 
+                    && board.GetBuilding(currentRow, currentCol) == building && !visited[currentRow, currentCol])
                 {
                     visited[currentRow, currentCol] = true; //sets particular cell as a 'visited' cell to prevent UpdateScoresandFinances() from tracking this cell
 
