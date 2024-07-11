@@ -10,7 +10,7 @@ namespace NgeeAnnCity
             ViewArcade();
             ViewFreePlay();
         }
-        public static void ViewArcade()
+        public static string[] ViewArcade()
         {
             string[] highScoreFile = File.ReadAllLines("arcadehighscores.csv");
             int nameColumnWidth = 9;
@@ -30,17 +30,16 @@ namespace NgeeAnnCity
             // Header
             Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", "Name", "High Score");
 
-            // Scores
             for (int i = 0; i < highScoreFile.Length; i++)
             {
                 string[] highScore = highScoreFile[i].Split(',');
                 Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", highScore[0], highScore[1]);
             }
-
             // Bottom border
-            Console.WriteLine(new string('-', totalWidth));
+            Console.WriteLine(new string('-', totalWidth + 1));
+            return highScoreFile;       //for Arcade EndGame
         }
-        public static void ViewFreePlay()
+        public static string[] ViewFreePlay()
         {
             string[] highScoreFile = File.ReadAllLines("freeplayhighscores.csv");
             int nameColumnWidth = 9;
@@ -67,6 +66,7 @@ namespace NgeeAnnCity
             }
             // Bottom border
             Console.WriteLine(new string('-', totalWidth + 1));
+            return highScoreFile;   //for Free Play EndGame
         }
     }
 }

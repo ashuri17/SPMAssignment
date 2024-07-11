@@ -125,7 +125,7 @@ namespace NgeeAnnCity
             return rows;
         }
 
-        internal void PlaceBuilding(char building, bool freeplay = true)
+        internal void PlaceBuilding(char building, int turn, bool freeplay = true)
         {
             int x, y;
 
@@ -167,6 +167,12 @@ namespace NgeeAnnCity
                 if (grid[x, y] != '.')
                 {
                     Console.WriteLine("Spot taken.\n");
+                    continue;
+                }
+                //check if buildings in arcade are placed adjacent to existing buildings
+                else if (!freeplay && turn > 1 && !IsAdjacentToExistingBuilding(x, y))
+                {
+                    Console.WriteLine("Building must be placed adjacent to an existing building.\n");
                     continue;
                 }
                 else
@@ -223,5 +229,192 @@ namespace NgeeAnnCity
         {
             return size;
         }
+
+        private bool IsAdjacentToExistingBuilding(int row, int col) // to check if arcade buildings are placed adjacent to existing buildings
+        {
+            // Check orthogonal directions
+            if (row > 0 && grid[row - 1, col] != '.') return true; // check up
+            if (row < size - 1 && grid[row + 1, col] != '.') return true; // check down
+            if (col > 0 && grid[row, col - 1] != '.') return true; // check left
+            if (col < size - 1 && grid[row, col + 1] != '.') return true; // check right
+
+            // Check diagonal directions
+            if (row > 0 && col > 0 && grid[row - 1, col - 1] != '.') return true; // check up-left
+            if (row > 0 && col < size - 1 && grid[row - 1, col + 1] != '.') return true; // check up-right
+            if (row < size - 1 && col > 0 && grid[row + 1, col - 1] != '.') return true; // check down-left
+            if (row < size - 1 && col < size - 1 && grid[row + 1, col + 1] != '.') return true; // check down-right
+
+            return false;
+        }
+
+
+
+        //arcade adjacent logic 
+        public bool IsAdjacentTo(int row, int col, char building)
+        {
+
+            return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building);
+        }
+
+        public bool FreePlayIsAdjacentTo(int row, int col, char building)
+        {
+
+            return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building) || IsConnectedViaRoad(row, col,size);
+        }
+
+        public bool IsOrthogonallyAdjacent(int row, int col, char building) //a check function to check if buildings are orthogonally adjacent to a specific building type
+        {
+            return (row > 0 && GetBuilding(row - 1, col) == building) ||  //Up
+                   (row < size-1 && GetBuilding(row + 1, col) == building) || //Down
+                   (col > 0 && GetBuilding(row, col - 1) == building) ||  //Left
+                   (col < size-1 && GetBuilding(row, col + 1) == building);   //Right
+        }
+
+
+        public bool IsDiagonallyAdjacentTo(int row, int col, char building) //a check function to check if buildings are diagonally adjacent to a specific building type
+        {
+            return (row > 0 && col > 0 && GetBuilding(row - 1, col - 1) == building) || // Up-Left
+                   (row > 0 && col < size - 1 && GetBuilding(row - 1, col + 1) == building) || // Up-Right
+                   (row < size - 1 && col > 0 && GetBuilding(row + 1, col - 1) == building) || // Down-Left
+                   (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building); // Down-Right
+        }
+
+
+
+        public int CountAdjacent(int row, int col, char building) // count the number of the specified building type adjacent to the current building
+        {
+            int count = 0;
+
+            // Check orthogonal directions
+            if (row > 0 && GetBuilding(row - 1, col) == building) count++; // check up
+            if (row < size - 1 && GetBuilding(row + 1, col) == building) count++; // check down
+            if (col > 0 && GetBuilding(row, col - 1) == building) count++; // check left
+            if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
+
+            // Check diagonal directions
+            if (row > 0 && col > 0 && GetBuilding(row - 1, col - 1) == building) count++; // check up-left
+            if (row > 0 && col < size - 1 && GetBuilding(row - 1, col + 1) == building) count++; // check up-right
+            if (row < size - 1 && col > 0 && GetBuilding(row + 1, col - 1) == building) count++; // check down-left
+            if (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building) count++; // check down-right
+
+            return count;
+        }
+
+        //freeplay count adjacent 
+        public int CountAdjacentFreePlay(int row, int col, char building) // count the number of the specified building type adjacent to the current building
+        {
+            int count = 0;
+            bool[][] visited = new bool[size][];
+            for (int i = 0; i < size; i++)
+            {
+                visited[i] = new bool[size];
+            }
+            // Check orthogonal directions
+            if (row > 0 && GetBuilding(row - 1, col) == building) { visited[row - 1][col] = true; count++; } // check up
+            if (row < size - 1 && GetBuilding(row + 1, col) == building) { visited[row + 1][col] = true; count++; } // check down
+            if (col > 0 && GetBuilding(row, col - 1) == building) { visited[row][col - 1] = true; count++; } // check left
+            if (col < size - 1 && GetBuilding(row, col + 1) == building) { visited[row][col + 1] = true; count++; } // check right
+
+            // Check diagonal directions
+            if (row > 0 && col > 0 && GetBuilding(row - 1, col - 1) == building) { visited[row - 1][col - 1] = true; count++; } // check up-left
+            if (row > 0 && col < size - 1 && GetBuilding(row - 1, col + 1) == building) { visited[row - 1][col + 1] = true; count++; } // check up-right
+            if (row < size - 1 && col > 0 && GetBuilding(row + 1, col - 1) == building) { visited[row + 1][col - 1] = true; count++; } // check down-left
+            if (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building) { visited[row + 1][col + 1] = true; count++; } // check down-right
+
+            // Check if connected via road
+            if (IsConnectedViaRoadSpec(row, col, building,visited)) count++;
+
+            return count;
+        }
+
+        public int CountAdjacentRow(int row, int col, char building) //check adjacent rows, mainly for road
+        {
+            int count = 0;
+            if (col > 0 && GetBuilding(row, col - 1) == building) count++; // check left
+            if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
+            return count;
+        }
+        // for general road connection
+        public bool IsConnectedViaRoad(int row, int col, int size)
+        {
+            int count = 0;
+            bool[][] visited = new bool[size][];
+            for (int i = 0; i < size; i++)
+            {
+                visited[i] = new bool[size];
+            }
+
+            return IsConnectedViaRoadRec(row, col, visited,count,size);
+        }
+
+        public bool IsConnectedViaRoadRec(int row, int col, bool[][] visited, int count, int size)
+        {
+            if (row < 0 || row >= size || col < 0 || col >= size || visited[row][col])
+            {
+                return false;
+            }
+
+            visited[row][col] = true;
+
+            if (grid[row, col] != '*' && grid[row, col] != '.' && count != 0)
+            {
+                return true;  // Found any building
+            }
+            count += 1;
+            return IsConnectedViaRoadRec(row - 1, col, visited, count, size) ||
+                   IsConnectedViaRoadRec(row + 1, col, visited, count, size) ||
+                   IsConnectedViaRoadRec(row, col - 1, visited, count, size) ||
+                   IsConnectedViaRoadRec(row, col + 1, visited, count, size);
+        }
+
+        // for specified building road connection
+        public bool IsConnectedViaRoadSpec(int row, int col, char building, bool[][] visited)
+        {
+            int count = 0; // to skip the first recursion, the starting cell
+
+            return IsConnectedViaRoadRecSpec(row, col, visited, count, building);
+        }
+
+        public bool IsConnectedViaRoadRecSpec(int row, int col, bool[][] visited, int count, char building)
+        {
+            if (row < 0 || row >= size || col < 0 || col >= size || visited[row][col])
+            {
+                return false;
+            }
+
+            visited[row][col] = true;
+
+            if (grid[row, col] == building && count != 0 )
+            {
+                return true;  // Found any building
+            }
+            count += 1;
+            return IsConnectedViaRoadRecSpec(row - 1, col, visited, count, building) ||    // Up
+                   IsConnectedViaRoadRecSpec(row + 1, col, visited, count, building) ||    // Down
+                   IsConnectedViaRoadRecSpec(row, col - 1, visited, count, building) ||    // Left
+                   IsConnectedViaRoadRecSpec(row, col + 1, visited, count, building) ||    // Right
+                   IsConnectedViaRoadRecSpec(row - 1, col - 1, visited, count, building) || // Up-Left
+                   IsConnectedViaRoadRecSpec(row - 1, col + 1, visited, count, building) || // Up-Right
+                   IsConnectedViaRoadRecSpec(row + 1, col - 1, visited, count, building) || // Down-Left
+                   IsConnectedViaRoadRecSpec(row + 1, col + 1, visited, count, building);   // Down-Right
+        }
+
+
+
+        public bool isGridFull()
+        {
+            for (int row = 0; row < size; row++)
+            {
+                for (int col = 0; col < size; col++)
+                {
+                    if (GetBuilding(row, col) == '.')
+                    {
+                        return false;   //board contains an empty cell
+                    }
+                }
+            }
+            return true;    //board no longer has an empty cell for a building to be constructed
+        }
+
     }
 }
