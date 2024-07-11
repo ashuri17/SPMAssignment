@@ -18,7 +18,7 @@ namespace NgeeAnnCity
         {
             board = new Board(20);
             turn = 0;
-            coins = 16;
+            coins = 2;
             points = 0;
             buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
             random = new Random();
@@ -34,6 +34,7 @@ namespace NgeeAnnCity
         {
             while (coins > 0 && !board.isGridFull())   //end game conditions
             {
+                Console.Clear();
                 Console.WriteLine("\x1b[3J");
                 turn++;
                 board.Display();
@@ -56,6 +57,7 @@ namespace NgeeAnnCity
                 Console.ReadKey();
             }
             Console.Clear();
+            Console.WriteLine("\x1b[3J");
             DisplayEndGame();
         }
 
@@ -220,7 +222,7 @@ namespace NgeeAnnCity
         {
             List<(string name, int score)> highScoresList = new List<(string name, int score)>();
 
-            string[] arcadeHighScores = HighScores.ViewArcade();
+            string[] arcadeHighScores = File.ReadAllLines("arcadehighscores.csv");
 
             foreach (string line in arcadeHighScores)
             {

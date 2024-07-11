@@ -8,65 +8,91 @@ namespace NgeeAnnCity
         public static void Start()
         {
             ViewArcade();
+            Console.WriteLine();
+            Console.WriteLine();
             ViewFreePlay();
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine("\x1b[3J");
         }
-        public static string[] ViewArcade()
+        public static void ViewArcade()
         {
-            string[] highScoreFile = File.ReadAllLines("arcadehighscores.csv");
-            int nameColumnWidth = 9;
-            int scoreColumnWidth = 11;
-            int totalWidth = nameColumnWidth + scoreColumnWidth + 3; // +3 for the spaces and borders
+            List<String> name = [];
+            List<String> score = [];
+
+            foreach (string s in File.ReadAllLines("arcadehighscores.csv").Skip(1).ToArray())
+            {
+                string[] sData = s.Split(',');
+                name.Add(sData[0]);
+                score.Add(sData[1]);
+            }
+            int nameColumnWidth = name.Max(i => i.Length);
+            int scoreColumnWidth = "Highscore".Length;
+            int totalWidth = nameColumnWidth + scoreColumnWidth + 10 < 28 ? 28 : nameColumnWidth + scoreColumnWidth + 10; // for the spaces and borders
 
             // Top border
-
-            Console.WriteLine(new string('-', totalWidth + 1));
+            Console.WriteLine(new string('-', totalWidth));
 
             // Title inside the box
-            Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Game Mode: Arcade");
-            Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Top 10 Highest Scores");
-            Console.WriteLine(new string('-', totalWidth + 1));
+            Console.WriteLine("|" + CenterString("ARCADE LEADERBOARD", totalWidth - 2) + "|");
+
+            // Middle border
+            Console.WriteLine(new string('-', totalWidth));
 
 
             // Header
-            Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", "Name", "High Score");
+            Console.WriteLine("|{0,-" + (nameColumnWidth + 4) + "} {1," + (scoreColumnWidth + 3) + "}|", " Name", "Score ");
 
-            for (int i = 0; i < highScoreFile.Length; i++)
+            for (int i = 0; i < name.Count; i++)
             {
-                string[] highScore = highScoreFile[i].Split(',');
-                Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", highScore[0], highScore[1]);
+                Console.WriteLine("|{2," + 2 + "}. {0,-" + nameColumnWidth + "} {1," + (scoreColumnWidth + 2) + "} |", name[i], score[i], i+1);
             }
+
             // Bottom border
-            Console.WriteLine(new string('-', totalWidth + 1));
-            return highScoreFile;       //for Arcade EndGame
+            Console.WriteLine(new string('-', totalWidth));
         }
-        public static string[] ViewFreePlay()
+        public static void ViewFreePlay()
         {
-            string[] highScoreFile = File.ReadAllLines("freeplayhighscores.csv");
-            int nameColumnWidth = 9;
-            int scoreColumnWidth = 11;
-            int totalWidth = nameColumnWidth + scoreColumnWidth + 3; // +3 for the spaces and borders
+            List<String> name = [];
+            List<String> score = [];
+
+            foreach (string s in File.ReadAllLines("freeplayhighscores.csv").Skip(1).ToArray())
+            {
+                string[] sData = s.Split(',');
+                name.Add(sData[0]);
+                score.Add(sData[1]);
+            }
+            int nameColumnWidth = name.Max(i => i.Length);
+            int scoreColumnWidth = score.Max(i => i.Length) > "Highscore".Length ? score.Max(i => i.Length) : "Highscore".Length;
+            int totalWidth = nameColumnWidth + scoreColumnWidth + 10 < 30 ? 30 : nameColumnWidth + scoreColumnWidth + 10; // for the spaces and borders
 
             // Top border
-            Console.WriteLine(new string('-', totalWidth + 1));
+            Console.WriteLine(new string('-', totalWidth));
 
             // Title inside the box
-            Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Game Mode: Free Play");
-            Console.WriteLine("|{0," + (totalWidth - 2) + "} |", "Top 10 Highest Scores");
-            Console.WriteLine(new string('-', totalWidth + 1));
+            Console.WriteLine("|" + CenterString("FREEPLAY LEADERBOARD", totalWidth - 2) + "|");
+
+            // Middle border
+            Console.WriteLine(new string('-', totalWidth));
 
 
             // Header
-            Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", "Name", "High Score");
+            Console.WriteLine("|{0,-" + (nameColumnWidth + 4) + "} {1," + (scoreColumnWidth + 3) + "}|", " Name", "Score ");
 
-            // Scores
-            for (int i = 0; i < highScoreFile.Length; i++)
+            for (int i = 0; i < name.Count; i++)
             {
-                string[] highScore = highScoreFile[i].Split(',');
-                Console.WriteLine("|{0,-" + nameColumnWidth + "} {1," + scoreColumnWidth + "} |", highScore[0], highScore[1]);
+                Console.WriteLine("|{2," + 2 + "}. {0,-" + nameColumnWidth + "} {1," + (scoreColumnWidth + 2) + "} |", name[i], score[i], i + 1);
             }
+
             // Bottom border
-            Console.WriteLine(new string('-', totalWidth + 1));
-            return highScoreFile;   //for Free Play EndGame
+            Console.WriteLine(new string('-', totalWidth));
+        }
+
+        private static string CenterString(String s, int width)
+        {
+            string padding = new string(' ', (int)Math.Floor((double) (width - s.Length)/2));
+            return padding + s + padding;
         }
     }
 }

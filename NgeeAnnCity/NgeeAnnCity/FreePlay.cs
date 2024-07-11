@@ -246,6 +246,7 @@ namespace NgeeAnnCity
             string horizontalBorder = new string('_', width);   //top border
 
             Console.WriteLine(horizontalBorder);
+
             //create box to display final info
             foreach (var line in lines)
             {
@@ -263,7 +264,7 @@ namespace NgeeAnnCity
         {
             List<(string name, int score)> highScoresList = new List<(string name, int score)>();
 
-            string[] freeplayHighScores = HighScores.ViewFreePlay();
+            string[] freeplayHighScores = File.ReadAllLines("./freeplayhighscores.csv");
 
             foreach (string line in freeplayHighScores)
             {
@@ -297,6 +298,7 @@ namespace NgeeAnnCity
             }
             Console.WriteLine("Enter anything to continue");
             Console.ReadKey();
+        }
 
         private void DisplayScreen()
         {
