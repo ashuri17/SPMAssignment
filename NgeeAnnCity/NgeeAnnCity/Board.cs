@@ -32,12 +32,13 @@ namespace NgeeAnnCity
             }
         }
 
-        internal void Display()
+        internal void Display(int startRow = 0, int startCol = 0, int width = 20) // 0, 5
         {
-            int horizontalPadding = size.ToString().Length + 1;
+            int horizontalPadding = (startRow + width).ToString().Length + 1;
+            int verticalPadding = (startCol + width).ToString().Length + 1;
 
             // get grid labels
-            char[][] gridLabels = GetGridLabels();
+            char[][] gridLabels = GetGridLabels(startCol + 1, width); // 1, 25
 
             // print top grid labels
             for (int i = 0; i < gridLabels.Length; i++)
@@ -45,16 +46,16 @@ namespace NgeeAnnCity
                 Console.Write(new String(' ', horizontalPadding + 2));
                 Console.WriteLine(string.Join(" ", gridLabels[i]));
             }
-
+            
             Console.WriteLine();
 
             // print grid
-            for (int i = 0; i < size; i++)
+            for (int i = startRow; i < startRow + width; i++) 
             {
                 // grid label on the left
-                Console.Write($"{i + 1}".PadLeft(horizontalPadding) + "  ");
+                Console.Write($"{i + 1}".PadLeft(verticalPadding) + "  ");
 
-                for (int j = 0; j < size; j++)
+                for (int j = startCol; j < startCol + width; j++) 
                 {
                     Console.Write(grid[i, j] + " ");
                 }
@@ -64,16 +65,18 @@ namespace NgeeAnnCity
             Console.WriteLine("\n\n");
         }
 
-        private char[][] GetGridLabels()
+        private char[][] GetGridLabels(int startCol = 1, int width = 20) // 6, 31
         {
+            int endCol = startCol + width; // 30
+
             // Get each number to print
-            int[] numbers = Enumerable.Range(1, size).ToArray();
+            int[] numbers = Enumerable.Range(startCol, endCol).ToArray(); // 6..30
 
             // Convert each number to a string
             string[] numberStrings = numbers.Select(i => i.ToString()).ToArray();
 
-            // Max number of digits for each number => number of digits the largest number has => number of digits the width has
-            int maxLength = size.ToString().Length;
+            // number of digits the largest number has
+            int maxLength = endCol.ToString().Length; 
 
             // Number of rows the array should have
             char[][] rows = new char[maxLength][];
@@ -81,11 +84,11 @@ namespace NgeeAnnCity
             // Number of columns (digits) each row should have
             for (int i = 0; i < maxLength; i++)
             {
-                rows[i] = new char[size];
+                rows[i] = new char[endCol];
             }
 
             // Iterate through each number
-            for (int col = 0; col < size; col++)
+            for (int col = 0; col < width; col++)
             {
                 string num = numberStrings[col];
                 int numLen = num.Length;
@@ -93,13 +96,6 @@ namespace NgeeAnnCity
                 // Iterate through each digit
                 for (int row = 0; row < maxLength; row++)
                 {
-                    // check if num has a digit in the row (99 doesn't have a digit in the first row if the width is 100) 
-                    // e.g.
-                    //
-                    //        1
-                    //   9    0
-                    //   9    0
-
                     if (row < numLen)
                     {
                         // If width is 2 digits, there will be 2 rows.
@@ -171,6 +167,7 @@ namespace NgeeAnnCity
                 if (grid[x, y] != '.')
                 {
                     Console.WriteLine("Spot taken.\n");
+                    continue;
                 }
                 else
                 {
@@ -191,7 +188,6 @@ namespace NgeeAnnCity
 
         internal char GetBuilding(int row, int column)
         {
-            Console.WriteLine($"{row}, {column}");
             return grid[row, column];
         }
 
