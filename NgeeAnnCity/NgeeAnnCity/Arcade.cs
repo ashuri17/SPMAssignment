@@ -232,7 +232,7 @@ namespace NgeeAnnCity
             {
                 string? playerName = null;
                 Console.WriteLine("Congrats on achieving a new high score!");
-
+              
                 //loops till playerName is no longer null
                 while (string.IsNullOrEmpty(playerName))
                 {

@@ -13,8 +13,9 @@ namespace NgeeAnnCity
         private int upkeep;
         private int turn;
         private int endGameTurns;
-
-        private int expansionCount = 0;
+        private int firstRow = 0;
+        private int firstCol = 0;
+        private int maxScreenSize = 25;
 
         public FreePlayGame()
         {
@@ -37,11 +38,30 @@ namespace NgeeAnnCity
         {
             while (true)
             {
-                //Console.Clear();
-                //Console.WriteLine("\x1b[3J");
                 turn++;
-                board.Display();
-                DisplayInfo();
+                DisplayScreen();
+                if (board.GetSize() > maxScreenSize)
+                {
+                    while (true)
+                    {
+                        Console.WriteLine("Pan Map (1) or Place Building (2): ");
+                        string? choice = Console.ReadLine();
+
+                        if (string.IsNullOrEmpty(choice) || !"12".Contains(choice.ToUpper()) || choice.Length != 1)
+                        {
+                            Console.WriteLine("Invalid choice, try again.");
+                            continue;
+                        }
+
+                        if (choice == "2")
+                        {
+                            break;
+                        }
+
+                        PanBoard();
+                        DisplayScreen();
+                    }
+                }
                 char building = GetUserBuilding();
                 board.PlaceBuilding(building,turn, true);
                 UpdateScoresandFinances();
@@ -202,6 +222,7 @@ namespace NgeeAnnCity
                 return char.Parse(choice.ToUpper());
             }
         }
+
         private bool EndGame()
         {
             if (profit < upkeep)
@@ -210,6 +231,7 @@ namespace NgeeAnnCity
             }
             return false;
         }
+      
         private void DisplayEndGame()
         {
             Console.Clear();
@@ -275,6 +297,55 @@ namespace NgeeAnnCity
             }
             Console.WriteLine("Enter anything to continue");
             Console.ReadKey();
+
+        private void DisplayScreen()
+        {
+            Console.Clear();
+            Console.WriteLine("\x1b[3J");
+            if (board.GetSize() < maxScreenSize)
+            {
+                board.Display(firstRow, firstCol, board.GetSize());
+            }
+            else
+            {
+                board.Display(firstRow, firstCol, maxScreenSize);
+
+            }
+            DisplayInfo();
+        }
+
+        private void PanBoard()
+        {
+            char? direction;
+            bool end = false;
+
+            while (!end)
+            {
+                DisplayScreen();
+                Console.WriteLine("w - Up, a - Left, s - Down, d - Right, q - Quit");
+
+                direction = Console.ReadKey().KeyChar;
+                switch (direction)
+                {
+                    case 'w':
+                        firstRow = firstRow - maxScreenSize < 0 ? 0 : firstRow - maxScreenSize; // 0 = 0 - 25 < 0 ? 0 : 0 - 25
+                        break;
+                    case 'a':
+                        firstCol = firstCol - maxScreenSize < 0 ? 0 : firstCol - maxScreenSize;
+                        break;
+                    case 's':
+                        firstRow = firstRow + maxScreenSize > board.GetSize() - maxScreenSize ? board.GetSize() - maxScreenSize : firstRow + maxScreenSize; // 0 = 0 + 25 > 15 ? 15 : 25 => 15
+                        break;
+                    case 'd':
+                        firstCol = firstCol + maxScreenSize > board.GetSize() - maxScreenSize ? board.GetSize() - maxScreenSize : firstCol + maxScreenSize;
+                        break;
+                    case 'q':
+                        end = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
