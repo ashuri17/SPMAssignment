@@ -79,7 +79,7 @@ namespace NgeeAnnCity
                                 profit += 1;
                                 if (!visited[i, j])
                                 {
-                                    if (CountAdjacent(i, j, 'R') >= 1)  //checks for 'R' cluster exists
+                                    if (board.CountAdjacent(i, j, 'R') >= 1)  //checks for 'R' cluster exists
                                     {
                                         MarkCluster(i, j, 'R', visited);    //enters MarkCluster with the particular info
                                         upkeep += 1;
@@ -91,7 +91,7 @@ namespace NgeeAnnCity
                                 }
                                 break;
                             case 'I':
-                                points += CalculateIndustryScore();
+                                points += 1;
                                 profit += 2;
                                 upkeep += 1;
                                 break;
@@ -106,9 +106,9 @@ namespace NgeeAnnCity
                                 break;
                             case '*':
                                 points += CalculateRoadScore(i);
-                                if (!IsAdjacentTo(i, j, 'R') && !IsAdjacentTo(i, j, 'I') &&
-                                    !IsAdjacentTo(i, j, 'C') && !IsAdjacentTo(i, j, 'O') &&
-                                    !IsAdjacentTo(i, j, '*'))   //checks if road is NOT adjacent to any other buildings
+                                if (!board.IsAdjacentTo(i, j, 'R') && !board.IsAdjacentTo(i, j, 'I') &&
+                                    !board.IsAdjacentTo(i, j, 'C') && !board.IsAdjacentTo(i, j, 'O') &&
+                                    !board.IsAdjacentTo(i, j, '*'))   //checks if road is NOT adjacent to any other buildings
                                 {
                                     upkeep += 1;
                                 }
@@ -122,39 +122,23 @@ namespace NgeeAnnCity
         private int CalculateResidentialScore(int row, int col)
         {
             int points = 0;
-            if (IsAdjacentTo(row, col, 'I'))
+            if (board.IsAdjacentTo(row, col, 'I'))
             {
-                return 1;
+                points+= 1;
             }
-            points += CountAdjacent(row, col, 'R') + CountAdjacent(row, col, 'C') + 2 * CountAdjacent(row, col, 'O');
+            points += board.CountAdjacent(row, col, 'R') + board.CountAdjacent(row, col, 'C') + 2 * board.CountAdjacent(row, col, 'O');
             return points;
         }
 
-        private int CalculateIndustryScore()
-        {
-            int industryCount = 0;
-            int size = board.GetSize();
-            for (int i = 0; i < size; i++)
-            {
-                for (int j = 0; j < size; j++)
-                {
-                    if (board.GetBuilding(i, j) == 'I')
-                    {
-                        industryCount++;
-                    }
-                }
-            }
-            return industryCount;
-        }
 
         private int CalculateCommercialScore(int row, int col)
         {
-            return CountAdjacent(row, col, 'C');
+            return board.CountAdjacent(row, col, 'C');
         }
 
         private int CalculateParkScore(int row, int col)
         {
-            return CountAdjacent(row, col, 'O');
+            return board.CountAdjacent(row, col, 'O');
         }
 
         private int CalculateRoadScore(int row)
@@ -171,26 +155,6 @@ namespace NgeeAnnCity
             return roadScore;
         }
 
-        private bool IsAdjacentTo(int row, int col, char building)
-        {
-            int size = board.GetSize();
-
-            return (row > 0 && board.GetBuilding(row - 1, col) == building) ||
-                   (row < size - 1 && board.GetBuilding(row + 1, col) == building) ||
-                   (col > 0 && board.GetBuilding(row, col - 1) == building) ||
-                   (col < size - 1 && board.GetBuilding(row, col + 1) == building);
-        }
-
-        private int CountAdjacent(int row, int col, char building)
-        {
-            int count = 0;
-            int size = board.GetSize();
-            if (row > 0 && board.GetBuilding(row - 1, col) == building) count++;
-            if (row < size - 1 && board.GetBuilding(row + 1, col) == building) count++;
-            if (col > 0 && board.GetBuilding(row, col - 1) == building) count++;
-            if (col < size - 1 && board.GetBuilding(row, col + 1) == building) count++;
-            return count;
-        }
         private void DisplayInfo()
         {
             Console.WriteLine(new string('-', 10) + "FREEPLAY MODE" + new string('-', 10) + "\n");

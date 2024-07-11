@@ -257,7 +257,7 @@ namespace NgeeAnnCity
         public bool IsAdjacentTo(int row, int col, char building)
         {
 
-            return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building);
+            return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building) || IsConnectedViaRoad(row, col);
         }
 
         public bool IsOrthogonallyAdjacent(int row, int col, char building) //a check function to check if buildings are orthogonally adjacent to a specific building type
@@ -304,6 +304,44 @@ namespace NgeeAnnCity
             if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
             return count;
         }
+
+        public bool IsConnectedViaRoad(int row, int col)
+        {
+            bool[][] visited = new bool[20][];
+            for (int i = 0; i < 20; i++)
+            {
+                visited[i] = new bool[20];
+            }
+
+            return IsConnectedViaRoadRec(row, col, visited);
+        }
+
+        public bool IsConnectedViaRoadRec(int row, int col, bool[][] visited)
+        {
+            if (row < 0 || row >= 20 || col < 0 || col >= 20 || visited[row][col])
+            {
+                return false;
+            }
+
+            visited[row][col] = true;
+
+            if (grid[row, col] != '*' && grid[row, col] != '.')
+            {
+                return true;  // Found any building
+            }
+
+            if (grid[row, col] != '*')
+            {
+                return false;  // No road found
+            }
+
+            return IsConnectedViaRoadRec(row - 1, col, visited) ||
+                   IsConnectedViaRoadRec(row + 1, col, visited) ||
+                   IsConnectedViaRoadRec(row, col - 1, visited) ||
+                   IsConnectedViaRoadRec(row, col + 1, visited);
+        }
+
+
 
         public bool isGridFull()
         {
