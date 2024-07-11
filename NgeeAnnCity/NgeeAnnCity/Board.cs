@@ -393,10 +393,14 @@ namespace NgeeAnnCity
                 return true;  // Found any building
             }
             count += 1;
-            return IsConnectedViaRoadRecSpec(row - 1, col, visited, count, building) ||
-                   IsConnectedViaRoadRecSpec(row + 1, col, visited, count, building) ||
-                   IsConnectedViaRoadRecSpec(row, col - 1, visited, count, building) ||
-                   IsConnectedViaRoadRecSpec(row, col + 1, visited, count, building);
+            return IsConnectedViaRoadRecSpec(row - 1, col, visited, count, building) ||    // Up
+                   IsConnectedViaRoadRecSpec(row + 1, col, visited, count, building) ||    // Down
+                   IsConnectedViaRoadRecSpec(row, col - 1, visited, count, building) ||    // Left
+                   IsConnectedViaRoadRecSpec(row, col + 1, visited, count, building) ||    // Right
+                   IsConnectedViaRoadRecSpec(row - 1, col - 1, visited, count, building) || // Up-Left
+                   IsConnectedViaRoadRecSpec(row - 1, col + 1, visited, count, building) || // Up-Right
+                   IsConnectedViaRoadRecSpec(row + 1, col - 1, visited, count, building) || // Down-Left
+                   IsConnectedViaRoadRecSpec(row + 1, col + 1, visited, count, building);   // Down-Right
         }
 
 
