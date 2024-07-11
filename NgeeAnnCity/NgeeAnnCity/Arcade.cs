@@ -34,7 +34,6 @@ namespace NgeeAnnCity
         {
             while (coins > 0 && !board.isGridFull())   //end game conditions
             {
-                Console.Clear();
                 Console.WriteLine("\x1b[3J");
                 turn++;
                 board.Display();

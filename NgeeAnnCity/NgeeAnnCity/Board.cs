@@ -257,7 +257,13 @@ namespace NgeeAnnCity
         public bool IsAdjacentTo(int row, int col, char building)
         {
 
-            return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building) || IsConnectedViaRoad(row, col);
+            return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building);
+        }
+
+        public bool FreePlayIsAdjacentTo(int row, int col, char building)
+        {
+
+            return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building) || IsConnectedViaRoad(row, col,size);
         }
 
         public bool IsOrthogonallyAdjacent(int row, int col, char building) //a check function to check if buildings are orthogonally adjacent to a specific building type
@@ -297,6 +303,34 @@ namespace NgeeAnnCity
 
             return count;
         }
+
+        //freeplay count adjacent 
+        public int CountAdjacentFreePlay(int row, int col, char building) // count the number of the specified building type adjacent to the current building
+        {
+            int count = 0;
+            bool[][] visited = new bool[size][];
+            for (int i = 0; i < size; i++)
+            {
+                visited[i] = new bool[size];
+            }
+            // Check orthogonal directions
+            if (row > 0 && GetBuilding(row - 1, col) == building) { visited[row - 1][col] = true; count++; } // check up
+            if (row < size - 1 && GetBuilding(row + 1, col) == building) { visited[row + 1][col] = true; count++; } // check down
+            if (col > 0 && GetBuilding(row, col - 1) == building) { visited[row][col - 1] = true; count++; } // check left
+            if (col < size - 1 && GetBuilding(row, col + 1) == building) { visited[row][col + 1] = true; count++; } // check right
+
+            // Check diagonal directions
+            if (row > 0 && col > 0 && GetBuilding(row - 1, col - 1) == building) { visited[row - 1][col - 1] = true; count++; } // check up-left
+            if (row > 0 && col < size - 1 && GetBuilding(row - 1, col + 1) == building) { visited[row - 1][col + 1] = true; count++; } // check up-right
+            if (row < size - 1 && col > 0 && GetBuilding(row + 1, col - 1) == building) { visited[row + 1][col - 1] = true; count++; } // check down-left
+            if (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building) { visited[row + 1][col + 1] = true; count++; } // check down-right
+
+            // Check if connected via road
+            if (IsConnectedViaRoadSpec(row, col, building,visited)) count++;
+
+            return count;
+        }
+
         public int CountAdjacentRow(int row, int col, char building) //check adjacent rows, mainly for road
         {
             int count = 0;
@@ -304,41 +338,65 @@ namespace NgeeAnnCity
             if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
             return count;
         }
-
-        public bool IsConnectedViaRoad(int row, int col)
+        // for general road connection
+        public bool IsConnectedViaRoad(int row, int col, int size)
         {
-            bool[][] visited = new bool[20][];
-            for (int i = 0; i < 20; i++)
+            int count = 0;
+            bool[][] visited = new bool[size][];
+            for (int i = 0; i < size; i++)
             {
-                visited[i] = new bool[20];
+                visited[i] = new bool[size];
             }
 
-            return IsConnectedViaRoadRec(row, col, visited);
+            return IsConnectedViaRoadRec(row, col, visited,count,size);
         }
 
-        public bool IsConnectedViaRoadRec(int row, int col, bool[][] visited)
+        public bool IsConnectedViaRoadRec(int row, int col, bool[][] visited, int count, int size)
         {
-            if (row < 0 || row >= 20 || col < 0 || col >= 20 || visited[row][col])
+            if (row < 0 || row >= size || col < 0 || col >= size || visited[row][col])
             {
                 return false;
             }
 
             visited[row][col] = true;
 
-            if (grid[row, col] != '*' && grid[row, col] != '.')
+            if (grid[row, col] != '*' && grid[row, col] != '.' && count != 0)
             {
                 return true;  // Found any building
             }
+            count += 1;
+            return IsConnectedViaRoadRec(row - 1, col, visited, count, size) ||
+                   IsConnectedViaRoadRec(row + 1, col, visited, count, size) ||
+                   IsConnectedViaRoadRec(row, col - 1, visited, count, size) ||
+                   IsConnectedViaRoadRec(row, col + 1, visited, count, size);
+        }
 
-            if (grid[row, col] != '*')
+        // for specified building road connection
+        public bool IsConnectedViaRoadSpec(int row, int col, char building, bool[][] visited)
+        {
+            int count = 0; // to skip the first recursion, the starting cell
+
+            return IsConnectedViaRoadRecSpec(row, col, visited, count, building);
+        }
+
+        public bool IsConnectedViaRoadRecSpec(int row, int col, bool[][] visited, int count, char building)
+        {
+            if (row < 0 || row >= size || col < 0 || col >= size || visited[row][col])
             {
-                return false;  // No road found
+                return false;
             }
 
-            return IsConnectedViaRoadRec(row - 1, col, visited) ||
-                   IsConnectedViaRoadRec(row + 1, col, visited) ||
-                   IsConnectedViaRoadRec(row, col - 1, visited) ||
-                   IsConnectedViaRoadRec(row, col + 1, visited);
+            visited[row][col] = true;
+
+            if (grid[row, col] == building && count != 0 )
+            {
+                return true;  // Found any building
+            }
+            count += 1;
+            return IsConnectedViaRoadRecSpec(row - 1, col, visited, count, building) ||
+                   IsConnectedViaRoadRecSpec(row + 1, col, visited, count, building) ||
+                   IsConnectedViaRoadRecSpec(row, col - 1, visited, count, building) ||
+                   IsConnectedViaRoadRecSpec(row, col + 1, visited, count, building);
         }
 
 

@@ -105,7 +105,7 @@ namespace NgeeAnnCity
                                 upkeep += 1;
                                 break;
                             case '*':
-                                points += CalculateRoadScore(i);
+                                points += CalculateRoadScore(i,j);
                                 if (!board.IsAdjacentTo(i, j, 'R') && !board.IsAdjacentTo(i, j, 'I') &&
                                     !board.IsAdjacentTo(i, j, 'C') && !board.IsAdjacentTo(i, j, 'O') &&
                                     !board.IsAdjacentTo(i, j, '*'))   //checks if road is NOT adjacent to any other buildings
@@ -122,37 +122,28 @@ namespace NgeeAnnCity
         private int CalculateResidentialScore(int row, int col)
         {
             int points = 0;
-            if (board.IsAdjacentTo(row, col, 'I'))
+            if (board.FreePlayIsAdjacentTo(row, col, 'I'))
             {
                 points+= 1;
             }
-            points += board.CountAdjacent(row, col, 'R') + board.CountAdjacent(row, col, 'C') + 2 * board.CountAdjacent(row, col, 'O');
+            points += board.CountAdjacentFreePlay(row, col, 'R') + board.CountAdjacentFreePlay(row, col, 'C') + 2 * board.CountAdjacentFreePlay(row, col, 'O');
             return points;
         }
 
 
         private int CalculateCommercialScore(int row, int col)
         {
-            return board.CountAdjacent(row, col, 'C');
+            return board.CountAdjacentFreePlay(row, col, 'C');
         }
 
         private int CalculateParkScore(int row, int col)
         {
-            return board.CountAdjacent(row, col, 'O');
+            return board.CountAdjacentFreePlay(row, col, 'O');
         }
 
-        private int CalculateRoadScore(int row)
+        private int CalculateRoadScore(int row, int col)
         {
-            int roadScore = 0;
-
-            for (int col = 0; col < board.GetSize(); col++)
-            {
-                if (board.GetBuilding(row, col) == '*')
-                {
-                    roadScore++;
-                }
-            }
-            return roadScore;
+            return board.CountAdjacentRow(row, col, '*');
         }
 
         private void DisplayInfo()
@@ -182,10 +173,16 @@ namespace NgeeAnnCity
                     visited[currentRow, currentCol] = true; //sets particular cell as a 'visited' cell to prevent UpdateScoresandFinances() from tracking this cell
 
                     // enqueues the 4 adjacent cell coords for the next loop
-                    queue.Enqueue((currentRow - 1, currentCol));
-                    queue.Enqueue((currentRow + 1, currentCol));
-                    queue.Enqueue((currentRow, currentCol - 1));
-                    queue.Enqueue((currentRow, currentCol + 1));
+                    queue.Enqueue((currentRow - 1, currentCol));//left
+                    queue.Enqueue((currentRow + 1, currentCol));//right
+                    queue.Enqueue((currentRow, currentCol - 1));//down
+                    queue.Enqueue((currentRow, currentCol + 1));//up
+
+                    queue.Enqueue((currentRow - 1, currentCol - 1)); // down-left
+                    queue.Enqueue((currentRow + 1, currentCol + 1)); // up-right
+                    queue.Enqueue((currentRow + 1, currentCol - 1)); // down-right
+                    queue.Enqueue((currentRow - 1, currentCol + 1)); // up-left
+
                 }
             }
         }
