@@ -173,6 +173,54 @@ namespace NgeeAnnCity
             }
         }
 
+        internal void DemolishBuilding()
+        {
+            int x,y;
+
+            //runs until a building is demolished
+            while (true)
+            {
+                //get row from user
+                while(true)
+                {
+                    Console.Write($"Row (1-{size}): ");
+
+                    // check if user enters a number that falls within the width of the board
+                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
+                    {
+                        Console.WriteLine("Invalid row.\n");
+                        continue;
+                    }
+                    break;
+                }
+
+                // get column from user 
+                while (true)
+                {
+                    Console.Write($"Column (1-{size}): ");
+
+                    // check if user enters a number that falls within the height of the board
+                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
+                    {
+                        Console.WriteLine("Invalid column.\n");
+                        continue;
+                    }
+                    break;
+                }
+
+                // check if spot is empty
+                if (grid[x-1, y-1] == '.')
+                {
+                    Console.WriteLine("No building to demolish.\n");
+                }
+                else
+                {
+                    grid[x-1, y-1] = Convert.ToChar(".");
+                    break;
+                }
+            }
+        }
+
 
         internal char GetBuilding(int row, int column)
         {
