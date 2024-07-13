@@ -23,7 +23,7 @@ namespace NgeeAnnCity
             points = 0;
             profit = 0;
             upkeep = 0;
-            turn = 0;
+            turn = 1;
             endGameTurns = 0;
             board = new Board(5);
         }
@@ -38,7 +38,6 @@ namespace NgeeAnnCity
         {
             while (true)
             {
-                turn++;
                 DisplayScreen();
                 if (board.GetSize() > maxScreenSize)
                 {
@@ -62,19 +61,36 @@ namespace NgeeAnnCity
                         DisplayScreen();
                     }
                 }
-                char building = GetUserBuilding();
-                board.PlaceBuilding(building,turn, true);
+                int buildingAction = board.ConstructOrDemolish();
+                if (buildingAction == 1)    //construct option
+                {
+                    char building = GetUserBuilding();
+                    board.PlaceBuilding(building, turn, true);
+                }
+                else if (buildingAction == 2)   //demolish option
+                {
+                    if (board.isGridEmpty())
+                    {
+                        Console.WriteLine("Board consists of no buildings.");
+                        Console.WriteLine("Press any key to return...");
+                        Console.ReadKey();
+                        continue;
+                    }
+                    board.DemolishBuilding();
+                }
+                turn++;
                 UpdateScoresandFinances();
+                //Game ends when profit < upkeep for 20 turns
                 if (EndGame())
                 {
                     endGameTurns++;
-                    if (endGameTurns == 5)
+                    if (endGameTurns == 2)
                     {
                         DisplayEndGame();
                         break;
                     }
                 }
-                else { endGameTurns = 0; }  // resets end game turns back to 0 when profit is greater than upkeep
+                else { endGameTurns = 0; }  // resets end game turns back to 0 when profit is greater than upkeep during one turn
             }
         }
 
@@ -264,13 +280,14 @@ namespace NgeeAnnCity
         {
             List<(string name, int score)> highScoresList = new List<(string name, int score)>();
 
-            string[] freeplayHighScores = File.ReadAllLines("./freeplayhighscores.csv");
+            string[] freeplayHighScores = File.ReadAllLines("./freeplayhighscores.csv").Skip(1).ToArray();
 
             foreach (string line in freeplayHighScores)
             {
                 string[] parts = line.Split(',');   //splits the playerName and points
                 highScoresList.Add((parts[0], int.Parse(parts[1])));
             }
+            HighScores.ViewFreePlay(); //display freeplay leaderboard
             if (points > highScoresList[^1].score)
             {
                 string? playerName = null;
@@ -286,10 +303,11 @@ namespace NgeeAnnCity
                 highScoresList.Sort((x, y) => y.score.CompareTo(x.score));  //sorts list in descending order of score
                 if (highScoresList.Count > 10)
                 {
-                    highScoresList.RemoveAt(10);    //ensurs list only contains 10 entries
+                    highScoresList.RemoveAt(10);    //ensures list only contains 10 entries
                 }
                 using (StreamWriter sw = new StreamWriter("freeplayhighscores.csv", false))
                 {
+                    sw.WriteLine("Name,Points");    //header in csv
                     foreach (var (name, score) in highScoresList)
                     {
                         sw.WriteLine($"{name},{score}");    //write back to csv file

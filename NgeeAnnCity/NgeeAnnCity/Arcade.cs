@@ -17,8 +17,8 @@ namespace NgeeAnnCity
         public Arcade()
         {
             board = new Board(20);
-            turn = 0;
-            coins = 2;
+            turn = 1;
+            coins = 16;
             points = 0;
             buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
             random = new Random();
@@ -36,23 +36,37 @@ namespace NgeeAnnCity
             {
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
-                turn++;
                 board.Display();
                 DisplayStats();
 
                 // Select two random buildings
                 List<string> selectedBuildings = SelectBuildings();
+                int buildingAction = board.ConstructOrDemolish();
+                if (buildingAction == 1)    //construct action
+                {
+                    string chosenBuilding = GetPlayerChoice(selectedBuildings);
+                    char buildingSymbol = GetBuildingSymbol(chosenBuilding);
 
-                // Get player choice
-                string chosenBuilding = GetPlayerChoice(selectedBuildings);
-                char buildingSymbol = GetBuildingSymbol(chosenBuilding);
-
-                // Place the chosen building
-                board.PlaceBuilding(buildingSymbol,turn, false);
+                    // Place the chosen building
+                    board.PlaceBuilding(buildingSymbol, turn, false);
+                }               
+                
+                else if (buildingAction == 2) //demolish action
+                {
+                    if (board.isGridEmpty())
+                    {
+                        Console.WriteLine("Board consists of no buildings.");
+                        Console.WriteLine("Press any key to return...");
+                        Console.ReadKey();
+                        continue;
+                    }
+                    board.DemolishBuilding();
+                }
 
                 // Update game state
                 coins -= 1;
                 UpdateScoresAndFinances();
+                turn++;
                 Console.WriteLine("Press any key for the next turn...");
                 Console.ReadKey();
             }
@@ -82,13 +96,11 @@ namespace NgeeAnnCity
             {
                 Console.WriteLine($"{i + 1}. {selectedBuildings[i]}");
             }
-
             int choice;
             while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > selectedBuildings.Count)
             {
                 Console.WriteLine("Invalid choice. Please select 1 or 2:");
             }
-
             return selectedBuildings[choice - 1];
         }
         private char GetBuildingSymbol(string building)
@@ -222,14 +234,14 @@ namespace NgeeAnnCity
         {
             List<(string name, int score)> highScoresList = new List<(string name, int score)>();
 
-            string[] arcadeHighScores = File.ReadAllLines("arcadehighscores.csv");
-
+            string[] arcadeHighScores = File.ReadAllLines("arcadehighscores.csv").Skip(1).ToArray();
+            
             foreach (string line in arcadeHighScores)
             {
                 string[] parts = line.Split(',');   //splits the playerName and points
                 highScoresList.Add((parts[0], int.Parse(parts[1])));
             }
-
+            HighScores.ViewArcade();    //display Arcade leaderboard
             if (points > highScoresList[^1].score)  //this checks if current player points is greater than the last score on the highscoreList
             {
                 string? playerName = null;
@@ -248,8 +260,10 @@ namespace NgeeAnnCity
                 {
                     highScoresList.RemoveAt(10);    //ensures list only contains 10 entries
                 }
+                //overwrite arcadehighscores.csv file
                 using (StreamWriter sw = new StreamWriter("arcadehighscores.csv", false))
                 {
+                    sw.WriteLine("Name,Points"); //header in csv
                     foreach (var (name, score) in highScoresList)
                     {
                         sw.WriteLine($"{name},{score}");    //write back to csv file

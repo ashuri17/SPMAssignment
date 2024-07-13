@@ -191,7 +191,54 @@ namespace NgeeAnnCity
                 break;
             }
         }
+        internal void DemolishBuilding()
+        {
+            int x, y;
+           
+            //runs until a building is demolished
+            while (true)
+            {
+                //get row from user
+                while (true)
+                {
+                    Console.Write($"Row (1-{size}): ");
 
+                    // check if user enters a number that falls within the width of the board
+                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
+                    {
+                        Console.WriteLine("Invalid row.\n");
+                        continue;
+                    }
+                    break;
+                }
+
+                // get column from user 
+                while (true)
+                {
+                    Console.Write($"Column (1-{size}): ");
+
+                    // check if user enters a number that falls within the height of the board
+                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
+                    {
+                        Console.WriteLine("Invalid column.\n");
+                        continue;
+                    }
+                    break;
+                }
+
+                // check if spot is empty
+                if (grid[x - 1, y - 1] == '.')
+                {
+                    Console.WriteLine("No building to demolish.\n");
+                }
+                else
+                {
+                    grid[x - 1, y - 1] = Convert.ToChar(".");
+                    RemoveBuilding(x - 1, y - 1);
+                    break;
+                }
+            }
+        }
         internal char GetBuilding(int row, int column)
         {
             return grid[row, column];
@@ -200,6 +247,10 @@ namespace NgeeAnnCity
         internal void StoreBuilding(char building, int row, int column)
         {
             buildingDict.Add(new Point(row, column), building);
+        }
+        internal void RemoveBuilding(int row, int column)
+        {
+            buildingDict.Remove(new Point(row, column));
         }
 
         internal bool TouchingBorder(int row, int column)
@@ -415,6 +466,38 @@ namespace NgeeAnnCity
             }
             return true;    //board no longer has an empty cell for a building to be constructed
         }
+        public bool isGridEmpty()
+        {
+            for (int row = 0; row < size; row++)
+            {
+                for (int col = 0; col < size; col++)
+                {
+                    if (GetBuilding(row, col) == 'R' || GetBuilding(row, col) == 'I' ||
+                        GetBuilding(row, col) == 'C' || GetBuilding(row, col) == 'O' ||
+                        GetBuilding(row, col) == '*')
+                    {
+                        return false;   //board already contains a building
+                    }
+                }
+            }
+            return true;    //board does not contain a building.
+        }
 
+        public int ConstructOrDemolish()
+        {
+            Console.WriteLine("Construct/Demolish a building (1/2):");
+            Console.WriteLine("1. Construct");
+            Console.WriteLine("2. Demolish");
+            int choice;
+            while (true)
+            {
+                if (int.TryParse(Console.ReadLine(), out choice) && (choice == 1 || choice == 2))
+                {
+                    break;
+                }
+                else { Console.WriteLine("Invalid choice. Please select 1 or 2:"); }
+            }
+            return choice;
+        }
     }
 }
