@@ -373,7 +373,7 @@ namespace NgeeAnnCity
             if (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building) { visited[row + 1][col + 1] = true; count++; } // check down-right
 
             // Check if connected via road
-            // count+= CountConnectedViaRoad(row, col, size, building, visited);
+            count+= CountConnectedViaRoad(row, col, size, building, visited);
             return count;
         }
 
@@ -386,7 +386,52 @@ namespace NgeeAnnCity
         }
         // for general road connection, counts number of connection
 
-        
+        public int CountConnectedViaRoad(int row, int col, int size,char building, bool[][] visited)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                visited[i] = new bool[size];
+            }
+            int callCount = 1;
+            // Skip the first building and start counting in the recursive function
+            return CountConnectedViaRoadRec(row, col, visited, building, size, callCount);
+        }
+
+        private int CountConnectedViaRoadRec(int row, int col, bool[][] visited, char building, int size, int callCount)
+        {
+            callCount += 1;
+            if (row < 0 || row >= size || col < 0 || col >= size || visited[row][col])
+            {
+                return 0;
+            }
+            visited[row][col] = true;
+
+            int foundCount = 0;
+
+            // Skip counting the building in the first call
+            if (callCount > 1 && grid[row, col] == building)
+            {
+                foundCount = 1;  // Found specified building
+                callCount += 1;
+                Console.WriteLine(callCount);
+            }
+
+            // Continue recursion only if the current cell is a road or the first cell
+            if (callCount == 2 || grid[row, col] == '*')
+            {
+                // Sum the results of the recursive calls
+                foundCount += CountConnectedViaRoadRec(row - 1, col, visited, building, size, callCount); //Up
+                foundCount += CountConnectedViaRoadRec(row + 1, col, visited, building, size, callCount); //Down
+                foundCount += CountConnectedViaRoadRec(row, col - 1, visited, building, size, callCount); //Left
+                foundCount += CountConnectedViaRoadRec(row, col + 1, visited, building, size, callCount); //Right
+                foundCount += CountConnectedViaRoadRec(row - 1, col - 1, visited, building, size, callCount); // Up-Left
+                foundCount += CountConnectedViaRoadRec(row - 1, col + 1, visited, building, size, callCount); // Up-Right
+                foundCount += CountConnectedViaRoadRec(row + 1, col - 1, visited, building, size, callCount); // Down-Left
+                foundCount += CountConnectedViaRoadRec(row + 1, col + 1, visited, building, size, callCount); // Down-Right
+            }
+
+            return foundCount;
+        }
 
         // for specified building road connection, 1 time count
         public bool IsConnectedViaRoadSpec(int row, int col, char building)
