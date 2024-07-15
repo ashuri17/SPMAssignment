@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -330,7 +331,13 @@ namespace NgeeAnnCity
                    (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building); // Down-Right
         }
 
-
+        public int CountAdjacentRow(int row, int col, char building) //check adjacent rows, mainly for road
+        {
+            int count = 0;
+            if (col > 0 && GetBuilding(row, col - 1) == building) count++; // check left
+            if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
+            return count;
+        }
 
         public int CountAdjacent(int row, int col, char building) // count the number of the specified building type adjacent to the current building
         {
@@ -373,30 +380,15 @@ namespace NgeeAnnCity
             if (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building) { visited[row + 1][col + 1] = true; count++; } // check down-right
 
             // Check if connected via road
-            count+= CountConnectedViaRoad(row, col, size, building, visited);
+            count += CountConnectedViaRoad(row, col, size, building, visited);
             return count;
         }
-
-        public int CountAdjacentRow(int row, int col, char building) //check adjacent rows, mainly for road
+        public int CountConnectedViaRoad(int row, int col, int size, char building, bool[][] visited)
         {
-            int count = 0;
-            if (col > 0 && GetBuilding(row, col - 1) == building) count++; // check left
-            if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
-            return count;
-        }
-        // for general road connection, counts number of connection
-
-        public int CountConnectedViaRoad(int row, int col, int size,char building, bool[][] visited)
-        {
-            for (int i = 0; i < size; i++)
-            {
-                visited[i] = new bool[size];
-            }
             int callCount = 1;
             // Skip the first building and start counting in the recursive function
             return CountConnectedViaRoadRec(row, col, visited, building, size, callCount);
         }
-
         private int CountConnectedViaRoadRec(int row, int col, bool[][] visited, char building, int size, int callCount)
         {
             callCount += 1;
@@ -409,11 +401,10 @@ namespace NgeeAnnCity
             int foundCount = 0;
 
             // Skip counting the building in the first call
-            if (callCount > 1 && grid[row, col] == building)
+            if (callCount > 2 && grid[row, col] == building)
             {
                 foundCount = 1;  // Found specified building
-                callCount += 1;
-                Console.WriteLine(callCount);
+                return foundCount;
             }
 
             // Continue recursion only if the current cell is a road or the first cell
