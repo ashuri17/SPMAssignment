@@ -195,7 +195,6 @@ namespace NgeeAnnCity
         internal void DemolishBuilding()
         {
             int x, y;
-
             //runs until a building is demolished
             while (true)
             {
@@ -226,7 +225,6 @@ namespace NgeeAnnCity
                     }
                     break;
                 }
-
                 // check if spot is empty
                 if (grid[x - 1, y - 1] == '.')
                 {

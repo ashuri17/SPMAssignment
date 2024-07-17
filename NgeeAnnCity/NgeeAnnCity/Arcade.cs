@@ -49,8 +49,8 @@ namespace NgeeAnnCity
 
                     // Place the chosen building
                     board.PlaceBuilding(buildingSymbol, turn, false);
-                }
-
+                }               
+                
                 else if (buildingAction == 2) //demolish action
                 {
                     if (board.isGridEmpty())
@@ -235,7 +235,6 @@ namespace NgeeAnnCity
             List<(string name, int score)> highScoresList = new List<(string name, int score)>();
 
             string[] arcadeHighScores = File.ReadAllLines("arcadehighscores.csv").Skip(1).ToArray();
-
             foreach (string line in arcadeHighScores)
             {
                 string[] parts = line.Split(',');   //splits the playerName and points
