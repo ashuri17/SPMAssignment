@@ -46,7 +46,7 @@ namespace NgeeAnnCity
 
             for (int i = 0; i < name.Count; i++)
             {
-                Console.WriteLine("|{2," + 2 + "}. {0,-" + nameColumnWidth + "} {1," + (scoreColumnWidth + 2) + "} |", name[i], score[i], i+1);
+                Console.WriteLine("|{2," + 2 + "}. {0,-" + nameColumnWidth + "} {1," + (scoreColumnWidth + 2) + "} |", name[i], score[i], i + 1);
             }
 
             // Bottom border
@@ -91,7 +91,7 @@ namespace NgeeAnnCity
 
         private static string CenterString(String s, int width)
         {
-            string padding = new string(' ', (int)Math.Floor((double) (width - s.Length)/2));
+            string padding = new string(' ', (int)Math.Floor((double)(width - s.Length) / 2));
             return padding + s + padding;
         }
     }
