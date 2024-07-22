@@ -39,6 +39,9 @@ namespace NgeeAnnCity
         internal void DisplayBoard()
         {
             int width;
+            Boolean canPanLeft = false;
+            Boolean canPanRight = false;
+
             if (size < maxScreenSize)
             {
                 width = size;
@@ -47,8 +50,28 @@ namespace NgeeAnnCity
             {
                 width = maxScreenSize;
             }
-            int horizontalPadding = (startRow + width).ToString().Length + 1;
-            int verticalPadding = (startCol + width).ToString().Length + 1;
+            int horizontalPadding = (startRow + width).ToString().Length;
+            int verticalPadding = (startCol + width).ToString().Length;
+
+            // check if user can pan up
+            if (startRow != 0)
+            {
+                Console.Write(new String(' ', horizontalPadding + 5));
+                Console.WriteLine(CenterString("^", width * 2 - 1));
+                Console.WriteLine("\n\n");
+            }
+
+            // check if user can pan left
+            if (startCol != 0)
+            {
+                canPanLeft = true;
+            }
+
+            // check if user can pan right
+            if (startCol + width != size)
+            {
+                canPanRight = true;
+            }
 
             // get grid labels
             char[][] gridLabels = GetGridLabels(startCol + 1, width);
@@ -56,7 +79,7 @@ namespace NgeeAnnCity
             // print top grid labels
             for (int i = 0; i < gridLabels.Length; i++)
             {
-                Console.Write(new String(' ', horizontalPadding + 2));
+                Console.Write(new String(' ', horizontalPadding + 5));
                 Console.WriteLine(string.Join(" ", gridLabels[i]));
             }
 
@@ -65,73 +88,70 @@ namespace NgeeAnnCity
             // print grid
             for (int i = startRow; i < startRow + width; i++)
             {
+                int middle = (int) Math.Floor((decimal) (startRow + startRow + width) / 2);
+
+                if (i == middle && canPanLeft)
+                {
+                    Console.Write(" < ");   
+                } 
+                else
+                {
+                    Console.Write("   ");
+                }
+
                 // grid label on the left
-                Console.Write($"{i + 1}".PadLeft(verticalPadding) + "  ");
+                Console.Write($"{i + 1}".PadLeft(horizontalPadding) + "  ");
 
                 for (int j = startCol; j < startCol + width; j++)
                 {
                     Console.Write(grid[i, j] + " ");
                 }
 
+                if (i == middle && canPanRight)
+                {
+                    Console.Write(" > "); 
+                }
+
                 Console.WriteLine();
+            }
+
+            // check if user can pan down
+            if (startRow + width != size)
+            {
+                Console.Write(new String(' ', horizontalPadding + 5));
+                Console.WriteLine(CenterString("v", width * 2 - 1));
             }
             Console.WriteLine("\n\n");
         }
         private char[][] GetGridLabels(int startCol = 1, int width = 20)
         {
-            int endCol = startCol + width; // 30
+            int endCol = startCol + width - 1; // Adjust to include the correct range
 
-            // Get each number to print
-            int[] numbers = Enumerable.Range(startCol, endCol).ToArray(); // 6..30
+            // Convert each number to a string and find the maximum length
+            string[] numberStrings = Enumerable.Range(startCol, width).Select(i => i.ToString()).ToArray();
+            int maxLength = numberStrings.Max(s => s.Length); // Find the max length for padding
 
-            // Convert each number to a string
-            string[] numberStrings = numbers.Select(i => i.ToString()).ToArray();
-
-            // number of digits the largest number has
-            int maxLength = endCol.ToString().Length;
-
-            // Number of rows the array should have
+            // Initialize the rows array with the maximum length found
             char[][] rows = new char[maxLength][];
 
-            // Number of columns (digits) each row should have
+            // Initialize each row with spaces to ensure empty spaces are correctly formatted
             for (int i = 0; i < maxLength; i++)
             {
-                rows[i] = new char[endCol];
+                rows[i] = Enumerable.Repeat(' ', width).ToArray();
             }
 
-            // Iterate through each number
+            // Iterate through each column label
             for (int col = 0; col < width; col++)
             {
                 string num = numberStrings[col];
                 int numLen = num.Length;
 
-                // Iterate through each digit
-                for (int row = 0; row < maxLength; row++)
+                // Place each digit of the number into the rows, starting from the bottom
+                for (int digitIndex = 0; digitIndex < numLen; digitIndex++)
                 {
-                    if (row < numLen)
-                    {
-                        // If width is 2 digits, there will be 2 rows.
-                        // e.g.
-                        // {...} <- stores the digit in the "tens" place
-                        // {...} <- stores the digit in the "ones" place
-                        //
-                        // If num is 5, numLen is 1.
-                        // During the first iteration of the for loop, the if statement will evaluate to (0 < 1).
-                        // Since it is true, 5 will be added to the last row.
-                        //
-                        // If it is 25, 5 will be added to the last row.
-                        // If it is 125, 5 will be added to the last row.
-                        //
-                        //
-                        // Subsequent iterations will check the other digits and if possible, add them to the other rows.
-
-                        rows[maxLength - row - 1][col] = num[numLen - row - 1];
-                    }
-                    else
-                    {
-                        // If there is no digits, represent as whitespace
-                        rows[maxLength - row - 1][col] = ' ';
-                    }
+                    // Calculate the row index (start from the bottom)
+                    int rowIndex = maxLength - numLen + digitIndex;
+                    rows[rowIndex][col] = num[digitIndex];
                 }
             }
             return rows;
@@ -414,6 +434,11 @@ namespace NgeeAnnCity
         internal void PanDown() 
         {
             startRow = startRow + maxScreenSize > size - maxScreenSize ? size - maxScreenSize : startRow + maxScreenSize;
+        }
+        private static string CenterString(String s, int width)
+        {
+            string padding = new string(' ', (int)Math.Floor((double)(width - s.Length) / 2));
+            return padding + s + padding;
         }
 
     }
