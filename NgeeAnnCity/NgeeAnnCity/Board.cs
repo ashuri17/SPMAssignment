@@ -13,15 +13,19 @@ namespace NgeeAnnCity
         private int size;
         private char[,] grid;
         private Dictionary<Point, char> buildingDict;
-        const int expansionSize = 5;
+        private int startRow = 0;
+        private int startCol = 0;
+        private int maxScreenSize;
+        private const int expansionSize = 5;
 
-        public Board(int size)
+        public Board(int size, int maxScreenSize)
         {
             this.size = size;
+            this.maxScreenSize = maxScreenSize;
             grid = new char[size, size];
             buildingDict = new Dictionary<Point, char>();
-        }
 
+        }
         internal void Initialize()
         {
             for (int i = 0; i < size; i++)
@@ -32,14 +36,22 @@ namespace NgeeAnnCity
                 }
             }
         }
-
-        internal void Display(int startRow = 0, int startCol = 0, int width = 20) // 0, 5
+        internal void DisplayBoard()
         {
+            int width;
+            if (size < maxScreenSize)
+            {
+                width = size;
+            }
+            else
+            {
+                width = maxScreenSize;
+            }
             int horizontalPadding = (startRow + width).ToString().Length + 1;
             int verticalPadding = (startCol + width).ToString().Length + 1;
 
             // get grid labels
-            char[][] gridLabels = GetGridLabels(startCol + 1, width); // 1, 25
+            char[][] gridLabels = GetGridLabels(startCol + 1, width);
 
             // print top grid labels
             for (int i = 0; i < gridLabels.Length; i++)
@@ -65,8 +77,7 @@ namespace NgeeAnnCity
             }
             Console.WriteLine("\n\n");
         }
-
-        private char[][] GetGridLabels(int startCol = 1, int width = 20) // 6, 31
+        private char[][] GetGridLabels(int startCol = 1, int width = 20)
         {
             int endCol = startCol + width; // 30
 
@@ -125,72 +136,10 @@ namespace NgeeAnnCity
             }
             return rows;
         }
-
-        internal void PlaceBuilding(char building, int turn, bool freeplay = true)
+        internal void PlaceBuilding(char building, int x, int y)
         {
-            int x, y;
-
-            // runs until a building is placed
-            while (true)
-            {
-                // get row from user
-                while (true)
-                {
-                    Console.Write($"Row (1-{size}): ");
-
-                    // check if user enters a number that falls within the width of the board
-                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
-                    {
-                        Console.WriteLine("Invalid row.\n");
-                        continue;
-                    }
-                    break;
-                }
-
-                // get column from user 
-                while (true)
-                {
-                    Console.Write($"Column (1-{size}): ");
-
-                    // check if user enters a number that falls within the height of the board
-                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
-                    {
-                        Console.WriteLine("Invalid column.\n");
-                        continue;
-                    }
-                    break;
-                }
-
-                x--;
-                y--;
-
-                // check if spot is taken
-                if (grid[x, y] != '.')
-                {
-                    Console.WriteLine("Spot taken.\n");
-                    continue;
-                }
-                //check if buildings in arcade are placed adjacent to existing buildings
-                else if (!freeplay && turn > 1 && !IsAdjacentToExistingBuilding(x, y))
-                {
-                    Console.WriteLine("Building must be placed adjacent to an existing building.\n");
-                    continue;
-                }
-                else
-                {
-                    grid[x, y] = building;
-                    StoreBuilding(building, x, y);
-                }
-
-                if (freeplay)
-                {
-                    if (TouchingBorder(x, y))
-                    {
-                        ExpandGrid();
-                    }
-                }
-                break;
-            }
+            grid[x, y] = building;
+            StoreBuilding(building, x, y);  
         }
         internal void DemolishBuilding()
         {
@@ -242,7 +191,6 @@ namespace NgeeAnnCity
         {
             return grid[row, column];
         }
-
         internal void StoreBuilding(char building, int row, int column)
         {
             buildingDict.Add(new Point(row, column), building);
@@ -251,13 +199,11 @@ namespace NgeeAnnCity
         {
             buildingDict.Remove(new Point(row, column));
         }
-
         internal bool TouchingBorder(int row, int column)
         {
             int maxIndex = size - 1;
             return (row == 0 || row == maxIndex || column == 0 || column == maxIndex);
         }
-
         internal void ExpandGrid()
         {
             size += expansionSize * 2;
@@ -274,13 +220,15 @@ namespace NgeeAnnCity
                 buildingDict.Add(new Point(coords.X, coords.Y), building);
             }
         }
-
         internal int GetSize()
         {
             return size;
         }
-
-        private bool IsAdjacentToExistingBuilding(int row, int col) // to check if arcade buildings are placed adjacent to existing buildings
+        internal int GetMaxScreenSize()
+        {
+            return maxScreenSize;
+        }
+        internal bool IsAdjacentToExistingBuilding(int row, int col)
         {
             // Check orthogonal directions
             if (row > 0 && grid[row - 1, col] != '.') return true; // check up
@@ -296,48 +244,38 @@ namespace NgeeAnnCity
 
             return false;
         }
-
-
-
-        //arcade adjacent logic 
-        public bool IsAdjacentTo(int row, int col, char building)
+        internal bool IsAdjacentTo(int row, int col, char building)
         {
 
             return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building);
         }
-
-        public bool FreePlayIsAdjacentTo(int row, int col, char building)
+        internal bool FreePlayIsAdjacentTo(int row, int col, char building)
         {
 
             return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building) || IsConnectedViaRoadSpec(row, col, building);
         }
-
-        public bool IsOrthogonallyAdjacent(int row, int col, char building) //a check function to check if buildings are orthogonally adjacent to a specific building type
+        internal bool IsOrthogonallyAdjacent(int row, int col, char building)
         {
             return (row > 0 && GetBuilding(row - 1, col) == building) ||  //Up
                    (row < size - 1 && GetBuilding(row + 1, col) == building) || //Down
                    (col > 0 && GetBuilding(row, col - 1) == building) ||  //Left
                    (col < size - 1 && GetBuilding(row, col + 1) == building);   //Right
         }
-
-
-        public bool IsDiagonallyAdjacentTo(int row, int col, char building) //a check function to check if buildings are diagonally adjacent to a specific building type
+        internal bool IsDiagonallyAdjacentTo(int row, int col, char building)
         {
             return (row > 0 && col > 0 && GetBuilding(row - 1, col - 1) == building) || // Up-Left
                    (row > 0 && col < size - 1 && GetBuilding(row - 1, col + 1) == building) || // Up-Right
                    (row < size - 1 && col > 0 && GetBuilding(row + 1, col - 1) == building) || // Down-Left
                    (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building); // Down-Right
         }
-
-        public int CountAdjacentRow(int row, int col, char building) //check adjacent rows, mainly for road
+        internal int CountAdjacentRow(int row, int col, char building)
         {
             int count = 0;
             if (col > 0 && GetBuilding(row, col - 1) == building) count++; // check left
             if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
             return count;
         }
-
-        public int CountAdjacent(int row, int col, char building) // count the number of the specified building type adjacent to the current building
+        internal int CountAdjacent(int row, int col, char building)
         {
             int count = 0;
 
@@ -355,9 +293,7 @@ namespace NgeeAnnCity
 
             return count;
         }
-
-        //freeplay count adjacent 
-        public int CountAdjacentFreePlay(int row, int col, char building) // count the number of the specified building type adjacent to the current building
+        internal int CountAdjacentFreePlay(int row, int col, char building)
         {
             int count = 0;
             bool[][] visited = new bool[size][];
@@ -381,7 +317,7 @@ namespace NgeeAnnCity
             count += CountConnectedViaRoad(row, col, size, building, visited);
             return count;
         }
-        public int CountConnectedViaRoad(int row, int col, int size, char building, bool[][] visited)
+        internal int CountConnectedViaRoad(int row, int col, int size, char building, bool[][] visited)
         {
             int callCount = 1;
             // Skip the first building and start counting in the recursive function
@@ -421,9 +357,7 @@ namespace NgeeAnnCity
 
             return foundCount;
         }
-
-        // for specified building road connection, 1 time count
-        public bool IsConnectedViaRoadSpec(int row, int col, char building)
+        internal bool IsConnectedViaRoadSpec(int row, int col, char building)
         {
             int count = 0; // to skip the first recursion, the starting cell
             bool[][] visited = new bool[size][];
@@ -434,8 +368,7 @@ namespace NgeeAnnCity
 
             return IsConnectedViaRoadRecSpec(row, col, visited, count, building);
         }
-
-        public bool IsConnectedViaRoadRecSpec(int row, int col, bool[][] visited, int count, char building)
+        internal bool IsConnectedViaRoadRecSpec(int row, int col, bool[][] visited, int count, char building)
         {
             if (row < 0 || row >= size || col < 0 || col >= size || visited[row][col])
             {
@@ -458,55 +391,30 @@ namespace NgeeAnnCity
                    IsConnectedViaRoadRecSpec(row + 1, col - 1, visited, count, building) || // Down-Left
                    IsConnectedViaRoadRecSpec(row + 1, col + 1, visited, count, building);   // Down-Right
         }
-
-
-
-        public bool isGridFull()
+        internal bool isGridFull()
         {
-            for (int row = 0; row < size; row++)
-            {
-                for (int col = 0; col < size; col++)
-                {
-                    if (GetBuilding(row, col) == '.')
-                    {
-                        return false;   //board contains an empty cell
-                    }
-                }
-            }
-            return true;    //board no longer has an empty cell for a building to be constructed
+            return buildingDict.Count == size * size;    //board is full.
         }
-        public bool isGridEmpty()
+        internal bool isGridEmpty()
         {
-            for (int row = 0; row < size; row++)
-            {
-                for (int col = 0; col < size; col++)
-                {
-                    if (GetBuilding(row, col) == 'R' || GetBuilding(row, col) == 'I' ||
-                        GetBuilding(row, col) == 'C' || GetBuilding(row, col) == 'O' ||
-                        GetBuilding(row, col) == '*')
-                    {
-                        return false;   //board already contains a building
-                    }
-                }
-            }
-            return true;    //board does not contain a building.
+            return buildingDict.Count == 0;    //board does not contain a building.
+        }
+        internal void PanLeft()
+        {
+            startCol = startCol - maxScreenSize < 0 ? 0 : startCol - maxScreenSize;
+        }
+        internal void PanRight()
+        {
+            startCol = startCol + maxScreenSize > size - maxScreenSize ? size - maxScreenSize : startCol + maxScreenSize;
+        }
+        internal void PanUp()
+        {
+            startRow = startRow - maxScreenSize < 0 ? 0 : startRow - maxScreenSize;
+        }
+        internal void PanDown() 
+        {
+            startRow = startRow + maxScreenSize > size - maxScreenSize ? size - maxScreenSize : startRow + maxScreenSize;
         }
 
-        public int ConstructOrDemolish()
-        {
-            Console.WriteLine("Construct/Demolish a building (1/2):");
-            Console.WriteLine("1. Construct");
-            Console.WriteLine("2. Demolish");
-            int choice;
-            while (true)
-            {
-                if (int.TryParse(Console.ReadLine(), out choice) && (choice == 1 || choice == 2))
-                {
-                    break;
-                }
-                else { Console.WriteLine("Invalid choice. Please select 1 or 2:"); }
-            }
-            return choice;
-        }
     }
 }
