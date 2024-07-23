@@ -141,7 +141,7 @@ namespace NgeeAnnCity
                                 upkeep += 1;
                                 break;
                             case '*':
-                                points += CalculateRoadScore(i,j);
+                                points += CalculateRoadScore(i, j);
                                 if (!board.IsAdjacentTo(i, j, 'R') && !board.IsAdjacentTo(i, j, 'I') &&
                                     !board.IsAdjacentTo(i, j, 'C') && !board.IsAdjacentTo(i, j, 'O') &&
                                     !board.IsAdjacentTo(i, j, '*'))   //checks if road is NOT adjacent to any other buildings
@@ -160,7 +160,7 @@ namespace NgeeAnnCity
             int points = 0;
             if (board.FreePlayIsAdjacentTo(row, col, 'I'))
             {
-                points+= 1;
+                points += 1;
             }
             points += board.CountAdjacentFreePlay(row, col, 'R') + board.CountAdjacentFreePlay(row, col, 'C') + 2 * board.CountAdjacentFreePlay(row, col, 'O');
             return points;
@@ -247,7 +247,7 @@ namespace NgeeAnnCity
             }
             return false;
         }
-      
+
         private void DisplayEndGame()
         {
             Console.Clear();
@@ -320,7 +320,7 @@ namespace NgeeAnnCity
 
         private void DisplayScreen()
         {
-            Console.Clear();
+            //Console.Clear();
             Console.WriteLine("\x1b[3J");
             if (board.GetSize() < maxScreenSize)
             {

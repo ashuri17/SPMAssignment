@@ -149,10 +149,10 @@ namespace NgeeAnnCity
                                 profit += board.CountAdjacent(i, j, 'R'); // counts how many residential buildings are adjacent to it, to add the coins
                                 break;
                             case 'O':
-                                points += CalculateParkScore(i, j); 
+                                points += CalculateParkScore(i, j);
                                 break;
                             case '*':
-                                points += CalculateRoadScore(i,j);
+                                points += CalculateRoadScore(i, j);
                                 break;
                         }
                     }
@@ -196,7 +196,7 @@ namespace NgeeAnnCity
             return board.CountAdjacent(row, col, 'O');
         }
 
-        private int CalculateRoadScore(int row,int col)
+        private int CalculateRoadScore(int row, int col)
         {
             return board.CountAdjacentRow(row, col, '*');
         }
@@ -235,7 +235,6 @@ namespace NgeeAnnCity
             List<(string name, int score)> highScoresList = new List<(string name, int score)>();
 
             string[] arcadeHighScores = File.ReadAllLines("arcadehighscores.csv").Skip(1).ToArray();
-            
             foreach (string line in arcadeHighScores)
             {
                 string[] parts = line.Split(',');   //splits the playerName and points
@@ -246,7 +245,7 @@ namespace NgeeAnnCity
             {
                 string? playerName = null;
                 Console.WriteLine("Congrats on achieving a new high score!");
-              
+
                 //loops till playerName is no longer null
                 while (string.IsNullOrEmpty(playerName))
                 {
