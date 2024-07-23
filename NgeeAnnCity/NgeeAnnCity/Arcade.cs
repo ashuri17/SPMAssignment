@@ -182,6 +182,7 @@ namespace NgeeAnnCity
             if (board.IsAdjacentTo(row, col, 'I')) // industry buildings only count once
             {
                 points += 1;
+                return points;
             }
             points += board.CountAdjacent(row, col, 'R') + board.CountAdjacent(row, col, 'C') + 2 * board.CountAdjacent(row, col, 'O');
             return points;
