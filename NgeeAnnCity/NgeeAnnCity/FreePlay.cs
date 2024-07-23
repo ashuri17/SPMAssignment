@@ -161,6 +161,7 @@ namespace NgeeAnnCity
             if (board.FreePlayIsAdjacentTo(row, col, 'I'))
             {
                 points+= 1;
+                return points;
             }
             points += board.CountAdjacentFreePlay(row, col, 'R') + board.CountAdjacentFreePlay(row, col, 'C') + 2 * board.CountAdjacentFreePlay(row, col, 'O');
             return points;
