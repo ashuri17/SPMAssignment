@@ -25,7 +25,7 @@ namespace NgeeAnnCity
             upkeep = 0;
             turn = 1;
             endGameTurns = 0;
-            board = new Board(5, 25);
+            board = new Board(100, 25);
         }
 
         public void Start()
@@ -197,7 +197,7 @@ namespace NgeeAnnCity
 
                 if (string.IsNullOrEmpty(choice) || !"RICO*".Contains(choice.ToUpper()) || choice.Length != 1)
                 {
-                    Console.WriteLine("Invalid choice, try again.");
+                    Console.Write("Invalid choice. ");
                     continue;
                 }
                 return char.Parse(choice.ToUpper());
@@ -325,10 +325,12 @@ namespace NgeeAnnCity
                 switch (action)
                 {
                     case '1':
+                        Console.WriteLine();
                         ConstructBuilding();
                         end = true;
                         break;
                     case '2':
+                        Console.WriteLine();
                         if (DemolishBuilding()) {
                             end= true;
                         }
@@ -383,7 +385,7 @@ namespace NgeeAnnCity
                     // check if user enters a number that falls within the width of the board
                     if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
                     {
-                        Console.Write($"Invalid row. Row (1-{size}): ");
+                        Console.Write($"Invalid row. ");
                         continue;
                     }
                     break;
@@ -397,7 +399,7 @@ namespace NgeeAnnCity
                     // check if user enters a number that falls within the height of the board
                     if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
                     {
-                        Console.Write($"Invalid column. Column (1-{size})");
+                        Console.Write($"Invalid column. ");
                         continue;
                     }
                     break;
@@ -418,6 +420,11 @@ namespace NgeeAnnCity
                     if (board.TouchingBorder(x, y))
                     {
                         board.ExpandGrid();
+                        board.PanTo(x + board.GetExpansionSize(), y + board.GetExpansionSize());
+                    } 
+                    else
+                    {
+                        board.PanTo(x, y);
                     }
                 }
                 break;

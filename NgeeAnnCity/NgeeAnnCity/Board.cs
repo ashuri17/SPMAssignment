@@ -58,7 +58,7 @@ namespace NgeeAnnCity
             {
                 Console.Write(new String(' ', horizontalPadding + 5));
                 Console.WriteLine(CenterString("^", width * 2 - 1));
-                Console.WriteLine("\n\n");
+                Console.WriteLine();
             }
 
             // check if user can pan left
@@ -88,6 +88,7 @@ namespace NgeeAnnCity
             // print grid
             for (int i = startRow; i < startRow + width; i++)
             {
+                // check when loop is in the middle so that indicator is centered
                 int middle = (int) Math.Floor((decimal) (startRow + startRow + width) / 2);
 
                 if (i == middle && canPanLeft)
@@ -118,6 +119,7 @@ namespace NgeeAnnCity
             // check if user can pan down
             if (startRow + width != size)
             {
+                Console.WriteLine();
                 Console.Write(new String(' ', horizontalPadding + 5));
                 Console.WriteLine(CenterString("v", width * 2 - 1));
             }
@@ -155,6 +157,10 @@ namespace NgeeAnnCity
                 }
             }
             return rows;
+        }
+        internal int GetExpansionSize()
+        {
+            return expansionSize;
         }
         internal void PlaceBuilding(char building, int x, int y)
         {
@@ -434,6 +440,33 @@ namespace NgeeAnnCity
         internal void PanDown() 
         {
             startRow = startRow + maxScreenSize > size - maxScreenSize ? size - maxScreenSize : startRow + maxScreenSize;
+        }
+        internal void PanTo(int row, int col)
+        {
+            int halfScreenSize = (int) (Math.Ceiling((decimal) maxScreenSize / 2));
+            row++; // incremented because it was decremented for placebuilding();
+            col++;
+
+            startRow = row - halfScreenSize;
+            startCol = col - halfScreenSize;
+
+            if (startRow < 0)
+            {
+                startRow = 0;
+            } 
+            else if (startRow + maxScreenSize > size)
+            {
+                startRow = size - maxScreenSize;
+            } 
+            
+            if (startCol < 0)
+            {
+                startCol = 0;
+            } 
+            else if (startCol + maxScreenSize > size) 
+            {
+                startCol = size - maxScreenSize;
+            }
         }
         private static string CenterString(String s, int width)
         {
