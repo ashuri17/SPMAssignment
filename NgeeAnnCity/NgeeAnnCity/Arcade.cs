@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using static System.Formats.Asn1.AsnWriter;
 
 namespace NgeeAnnCity
@@ -16,7 +17,7 @@ namespace NgeeAnnCity
 
         public Arcade()
         {
-            board = new Board(20);
+            board = new Board(20, 20);
             turn = 1;
             coins = 16;
             points = 0;
@@ -34,41 +35,10 @@ namespace NgeeAnnCity
         {
             while (coins > 0 && !board.isGridFull())   //end game conditions
             {
-                Console.Clear();
-                Console.WriteLine("\x1b[3J");
-                board.Display();
-                DisplayStats();
-
-                // Select two random buildings
-                List<string> selectedBuildings = SelectBuildings();
-                int buildingAction = board.ConstructOrDemolish();
-                if (buildingAction == 1)    //construct action
-                {
-                    string chosenBuilding = GetPlayerChoice(selectedBuildings);
-                    char buildingSymbol = GetBuildingSymbol(chosenBuilding);
-
-                    // Place the chosen building
-                    board.PlaceBuilding(buildingSymbol, turn, false);
-                }               
-                
-                else if (buildingAction == 2) //demolish action
-                {
-                    if (board.isGridEmpty())
-                    {
-                        Console.WriteLine("Board consists of no buildings.");
-                        Console.WriteLine("Press any key to return...");
-                        Console.ReadKey();
-                        continue;
-                    }
-                    board.DemolishBuilding();
-                }
-
-                // Update game state
+                HandleAction();
                 coins -= 1;
                 UpdateScoresAndFinances();
                 turn++;
-                Console.WriteLine("Press any key for the next turn...");
-                Console.ReadKey();
             }
             Console.Clear();
             Console.WriteLine("\x1b[3J");
@@ -88,20 +58,20 @@ namespace NgeeAnnCity
             }
             return selectedBuildings;
         }
-
-        private string GetPlayerChoice(List<string> selectedBuildings)
+        private char GetPlayerChoice(List<string> selectedBuildings)
         {
-            Console.WriteLine("Choose a building to construct (1/2):");
+            int choice;
+
             for (int i = 0; i < selectedBuildings.Count; i++)
             {
                 Console.WriteLine($"{i + 1}. {selectedBuildings[i]}");
             }
-            int choice;
+
             while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > selectedBuildings.Count)
             {
-                Console.WriteLine("Invalid choice. Please select 1 or 2:");
+                Console.Write("Invalid choice. Please select 1 or 2:");
             }
-            return selectedBuildings[choice - 1];
+            return GetBuildingSymbol(selectedBuildings[choice - 1]);
         }
         private char GetBuildingSymbol(string building)
         {
@@ -115,15 +85,13 @@ namespace NgeeAnnCity
                 _ => '.',
             };
         }
-        private void DisplayStats()
+        private void DisplayInfo()
         {
             Console.WriteLine(new string('-', 10) + "ARCADE MODE" + new string('-', 10) + "\n");
             Console.WriteLine($"Turn: {turn}");
             Console.WriteLine($"Coins left: {coins}");
             Console.WriteLine($"Points: {points}");
         }
-
-
         private void UpdateScoresAndFinances()
         {
             points = 0;
@@ -160,7 +128,6 @@ namespace NgeeAnnCity
             }
             coins += profit;
         }
-
         private bool IsConnectedToOtherRoad(int row, int col, bool[][] visited)
         {
             if (row < 0 || row >= 20 || col < 0 || col >= 20 || visited[row][col] || board.GetBuilding(row, col) != '*')
@@ -190,18 +157,14 @@ namespace NgeeAnnCity
         {
             return board.CountAdjacent(row, col, 'C');
         }
-
         private int CalculateParkScore(int row, int col)
         {
             return board.CountAdjacent(row, col, 'O');
         }
-
         private int CalculateRoadScore(int row, int col)
         {
             return board.CountAdjacentRow(row, col, '*');
         }
-
-        //End Game Display
         private void DisplayEndGame()
         {
             Console.Clear();
@@ -228,8 +191,6 @@ namespace NgeeAnnCity
             Console.ReadKey();
             EditHighScores();
         }
-
-
         private void EditHighScores()
         {
             List<(string name, int score)> highScoresList = new List<(string name, int score)>();
@@ -271,6 +232,119 @@ namespace NgeeAnnCity
             }
             Console.WriteLine("Enter anything to continue");
             Console.ReadKey();
+        }
+        private void HandleAction()
+        {
+            int choice;
+
+            while (true)
+            {
+                DisplayScreen();
+                Console.WriteLine("1 - Construct, 2 - Demolish");
+
+                if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2))
+                {
+                    continue;
+                }
+
+                if (choice == 1)
+                {
+                    ConstructBuilding();
+                }
+                else
+                {
+                    if (!DemolishBuilding())
+                    {
+                        continue;
+                    }
+                }
+                break;
+            }
+        }
+        private void DisplayScreen()
+        {
+            Console.Clear();
+            Console.WriteLine("\x1b[3J");
+            board.DisplayBoard();
+            DisplayInfo();
+        }
+        private void ConstructBuilding()
+        {
+            List<String> buildings = SelectBuildings(); // !SHOULD BE STRING ARRAY
+            char building = GetPlayerChoice(buildings);
+            PlaceBuilding(building);
+        }
+        private Boolean DemolishBuilding()
+        {
+            if (board.isGridEmpty())
+            {
+                Console.WriteLine("Board consists of no buildings.");
+                Console.WriteLine("Press any key to return...");
+                Console.ReadKey();
+                return false;
+            }
+            board.DemolishBuilding();
+            return true;
+        }
+        private void PlaceBuilding(char building)
+        {
+            int x, y;
+            int size = board.GetSize();
+
+            // runs until a building is placed
+            while (true)
+            {
+                // get row from user
+                while (true)
+                {
+                    Console.Write($"Row (1-{size}): ");
+
+                    // check if user enters a number that falls within the width of the board
+                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
+                    {
+                        Console.Write($"Invalid row. ");
+                        continue;
+                    }
+                    break;
+                }
+
+                Console.WriteLine();
+
+                // get column from user 
+                while (true)
+                {
+                    Console.Write($"Column (1-{size}): ");
+
+                    // check if user enters a number that falls within the height of the board
+                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
+                    {
+                        Console.Write($"Invalid column. ");
+                        continue;
+                    }
+                    break;
+                }
+
+                x--;
+                y--;
+
+                // check if spot is taken
+                if (board.GetBuilding(x, y) != '.')
+                {
+                    Console.Write("Spot taken.\n");
+                    continue;
+                }
+                //check if buildings in arcade are placed adjacent to existing buildings
+                else if (!board.isGridEmpty() && !board.IsAdjacentToExistingBuilding(x, y))
+                {
+                    Console.Write("Building must be placed adjacent to an existing building.\n");
+                    continue;
+                }
+                else
+                {
+                    board.PlaceBuilding(building, x, y);
+                }
+                break;
+            }
         }
     }
 }
