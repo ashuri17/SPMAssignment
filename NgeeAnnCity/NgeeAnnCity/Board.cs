@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NgeeAnnCity
 {
-    internal class Board
+    public class Board
     {
         private int size;
         private char[,] grid;
@@ -500,7 +500,7 @@ namespace NgeeAnnCity
             int choice;
             while (true)
             {
-                if (int.TryParse(Console.ReadLine(), out choice) && (choice == 1 || choice == 2))
+                if (int.TryParse(Console.ReadLine(), out choice) && (choice == 1 || choice == 2 ))
                 {
                     break;
                 }
