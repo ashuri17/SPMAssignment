@@ -108,7 +108,6 @@ public class ArcadeSaveFile:SaveFile
             foreach (string s in dataJson)
             {
                 sw.WriteLine(s);
-                Console.WriteLine(s);
             }
         } 
     }
@@ -135,7 +134,6 @@ public class FreePlaySaveFile:SaveFile
             foreach (string s in dataJson)
             {
                 sw.WriteLine(s);
-                Console.WriteLine(s);
             }
         } 
     }

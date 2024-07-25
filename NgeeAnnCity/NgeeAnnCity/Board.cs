@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace NgeeAnnCity
@@ -12,13 +14,17 @@ namespace NgeeAnnCity
     {
         public int size {get; set;}
         private char[,] grid;
-        public char[] nestedGridForJson {get; set;}
+        public List<List<char>> gridList 
+        {
+            get{return gridList = ToNestedList(grid);}
+            set{grid = ToCharArray(gridList);}
+        }
         private Dictionary<Point, char> buildingDict;
         public List<KeyValuePair<Point, char>> serializedBuildingDict
-    {
+        {
         get { return buildingDict.ToList(); }
         set { buildingDict= value.ToDictionary(x => x.Key, x => x.Value); }
-    }
+        }
         const int expansionSize = 5;
 
         public Board(int size)
@@ -96,6 +102,39 @@ namespace NgeeAnnCity
                     Console.BackgroundColor = ConsoleColor.Black;
                     break;
             }
+        }
+        private List<List<char>> ToNestedList(char[,] array)
+        {
+            int rows = array.GetLength(0);
+            int cols = array.GetLength(1);
+            List<List<char>> nestedList = new();
+
+            for (int i = 0; i < rows; i++)
+            {
+                List<char> innerList = new();
+                for (int j = 0; j < cols; j++)
+                {
+                    innerList.Add(array[i, j]);
+                }
+                nestedList.Add(innerList);
+            }
+            return nestedList;
+        }
+        private char[,] ToCharArray(List<List<char>> nestedList)
+        {
+            int rows = nestedList.Count;
+            int cols = nestedList[0].Count; // Assuming all inner lists have the same length
+
+            char[,] array = new char[rows, cols];
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    array[i, j] = nestedList[i][j];
+                }
+            }
+            return array;
         }
 
         private char[][] GetGridLabels(int startCol = 1, int width = 20) // 6, 31
