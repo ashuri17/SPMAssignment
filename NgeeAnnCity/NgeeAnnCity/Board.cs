@@ -14,20 +14,25 @@ namespace NgeeAnnCity
         private char[,] grid;
         public char[] nestedGridForJson {get; set;}
         private Dictionary<Point, char> buildingDict;
+        private int startRow = 0;
+        private int startCol = 0;
+        private int maxScreenSize;
+        private const int expansionSize = 5;
+      
         public List<KeyValuePair<Point, char>> serializedBuildingDict
-    {
-        get { return buildingDict.ToList(); }
-        set { buildingDict= value.ToDictionary(x => x.Key, x => x.Value); }
-    }
-        const int expansionSize = 5;
-
-        public Board(int size)
         {
-            this.size = size;
-            grid = new char[size, size];
-            buildingDict = new Dictionary<Point, char>();
+          get { return buildingDict.ToList(); }
+          set { buildingDict= value.ToDictionary(x => x.Key, x => x.Value); }
         }
 
+        public Board(int size, int maxScreenSize)
+        {
+            this.size = size;
+            this.maxScreenSize = maxScreenSize;
+            grid = new char[size, size];
+            buildingDict = new Dictionary<Point, char>();
+
+        }
         internal void Initialize()
         {
             for (int i = 0; i < size; i++)
@@ -38,19 +43,50 @@ namespace NgeeAnnCity
                 }
             }
         }
-
-        internal void Display(int startRow = 0, int startCol = 0, int width = 20) // 0, 5
+        internal void DisplayBoard()
         {
-            int horizontalPadding = (startRow + width).ToString().Length + 1;
-            int verticalPadding = (startCol + width).ToString().Length + 1;
+            int width;
+            Boolean canPanLeft = false;
+            Boolean canPanRight = false;
+
+            if (size < maxScreenSize)
+            {
+                width = size;
+            }
+            else
+            {
+                width = maxScreenSize;
+            }
+            int horizontalPadding = (startRow + width).ToString().Length;
+            int verticalPadding = (startCol + width).ToString().Length;
+
+            // check if user can pan up
+            if (startRow != 0)
+            {
+                Console.Write(new String(' ', horizontalPadding + 5));
+                Console.WriteLine(CenterString("^", width * 2 - 1));
+                Console.WriteLine();
+            }
+
+            // check if user can pan left
+            if (startCol != 0)
+            {
+                canPanLeft = true;
+            }
+
+            // check if user can pan right
+            if (startCol + width != size)
+            {
+                canPanRight = true;
+            }
 
             // get grid labels
-            char[][] gridLabels = GetGridLabels(startCol + 1, width); // 1, 25
+            char[][] gridLabels = GetGridLabels(startCol + 1, width);
 
             // print top grid labels
             for (int i = 0; i < gridLabels.Length; i++)
             {
-                Console.Write(new String(' ', horizontalPadding + 2));
+                Console.Write(new String(' ', horizontalPadding + 5));
                 Console.WriteLine(string.Join(" ", gridLabels[i]));
             }
 
@@ -59,16 +95,41 @@ namespace NgeeAnnCity
             // print grid
             for (int i = startRow; i < startRow + width; i++)
             {
+                // check when loop is in the middle so that indicator is centered
+                int middle = (int) Math.Floor((decimal) (startRow + startRow + width) / 2);
+
+                if (i == middle && canPanLeft)
+                {
+                    Console.Write(" < ");   
+                } 
+                else
+                {
+                    Console.Write("   ");
+                }
+
                 // grid label on the left
-                Console.Write($"{i + 1}".PadLeft(verticalPadding) + "  ");
- 
+                Console.Write($"{i + 1}".PadLeft(horizontalPadding) + "  ");
+              
                 for (int j = startCol; j < startCol + width; j++)
                 {
                     SetBackgroundColor(grid[i, j]);
                     Console.Write(grid[i, j] + " ");
                 }
-            
+
+
+                if (i == middle && canPanRight)
+                {
+                    Console.Write(" > "); 
+                }
                 Console.WriteLine();
+            }
+
+            // check if user can pan down
+            if (startRow + width != size)
+            {
+                Console.WriteLine();
+                Console.Write(new String(' ', horizontalPadding + 5));
+                Console.WriteLine(CenterString("v", width * 2 - 1));
             }
             Console.WriteLine("\n\n");
         }
@@ -98,131 +159,47 @@ namespace NgeeAnnCity
             }
         }
 
-        private char[][] GetGridLabels(int startCol = 1, int width = 20) // 6, 31
+        private char[][] GetGridLabels(int startCol = 1, int width = 20) 
         {
-            int endCol = startCol + width; // 30
+            int endCol = startCol + width - 1; // Adjust to include the correct range
 
-            // Get each number to print
-            int[] numbers = Enumerable.Range(startCol, endCol).ToArray(); // 6..30
+            // Convert each number to a string and find the maximum length
+            string[] numberStrings = Enumerable.Range(startCol, width).Select(i => i.ToString()).ToArray();
+            int maxLength = numberStrings.Max(s => s.Length); // Find the max length for padding
 
-            // Convert each number to a string
-            string[] numberStrings = numbers.Select(i => i.ToString()).ToArray();
-
-            // number of digits the largest number has
-            int maxLength = endCol.ToString().Length;
-
-            // Number of rows the array should have
+            // Initialize the rows array with the maximum length found
             char[][] rows = new char[maxLength][];
 
-            // Number of columns (digits) each row should have
+            // Initialize each row with spaces to ensure empty spaces are correctly formatted
             for (int i = 0; i < maxLength; i++)
             {
-                rows[i] = new char[endCol];
+                rows[i] = Enumerable.Repeat(' ', width).ToArray();
             }
 
-            // Iterate through each number
+            // Iterate through each column label
             for (int col = 0; col < width; col++)
             {
                 string num = numberStrings[col];
                 int numLen = num.Length;
 
-                // Iterate through each digit
-                for (int row = 0; row < maxLength; row++)
+                // Place each digit of the number into the rows, starting from the bottom
+                for (int digitIndex = 0; digitIndex < numLen; digitIndex++)
                 {
-                    if (row < numLen)
-                    {
-                        // If width is 2 digits, there will be 2 rows.
-                        // e.g.
-                        // {...} <- stores the digit in the "tens" place
-                        // {...} <- stores the digit in the "ones" place
-                        //
-                        // If num is 5, numLen is 1.
-                        // During the first iteration of the for loop, the if statement will evaluate to (0 < 1).
-                        // Since it is true, 5 will be added to the last row.
-                        //
-                        // If it is 25, 5 will be added to the last row.
-                        // If it is 125, 5 will be added to the last row.
-                        //
-                        //
-                        // Subsequent iterations will check the other digits and if possible, add them to the other rows.
-
-                        rows[maxLength - row - 1][col] = num[numLen - row - 1];
-                    }
-                    else
-                    {
-                        // If there is no digits, represent as whitespace
-                        rows[maxLength - row - 1][col] = ' ';
-                    }
+                    // Calculate the row index (start from the bottom)
+                    int rowIndex = maxLength - numLen + digitIndex;
+                    rows[rowIndex][col] = num[digitIndex];
                 }
             }
             return rows;
         }
-
-        internal void PlaceBuilding(char building, int turn, bool freeplay = true)
+        internal int GetExpansionSize()
         {
-            int x, y;
-
-            // runs until a building is placed
-            while (true)
-            {
-                // get row from user
-                while (true)
-                {
-                    Console.Write($"Row (1-{size}): ");
-
-                    // check if user enters a number that falls within the width of the board
-                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
-                    {
-                        Console.WriteLine("Invalid row.\n");
-                        continue;
-                    }
-                    break;
-                }
-
-                // get column from user 
-                while (true)
-                {
-                    Console.Write($"Column (1-{size}): ");
-
-                    // check if user enters a number that falls within the height of the board
-                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
-                    {
-                        Console.WriteLine("Invalid column.\n");
-                        continue;
-                    }
-                    break;
-                }
-
-                x--;
-                y--;
-
-                // check if spot is taken
-                if (grid[x, y] != '.')
-                {
-                    Console.WriteLine("Spot taken.\n");
-                    continue;
-                }
-                //check if buildings in arcade are placed adjacent to existing buildings
-                else if (!freeplay && turn > 1 && !IsAdjacentToExistingBuilding(x, y))
-                {
-                    Console.WriteLine("Building must be placed adjacent to an existing building.\n");
-                    continue;
-                }
-                else
-                {
-                    grid[x, y] = building;
-                    StoreBuilding(building, x, y);
-                }
-
-                if (freeplay)
-                {
-                    if (TouchingBorder(x, y))
-                    {
-                        ExpandGrid();
-                    }
-                }
-                break;
-            }
+            return expansionSize;
+        }
+        internal void PlaceBuilding(char building, int x, int y)
+        {
+            grid[x, y] = building;
+            StoreBuilding(building, x, y);  
         }
         internal void DemolishBuilding()
         {
@@ -274,7 +251,6 @@ namespace NgeeAnnCity
         {
             return grid[row, column];
         }
-
         internal void StoreBuilding(char building, int row, int column)
         {
             buildingDict.Add(new Point(row, column), building);
@@ -283,13 +259,11 @@ namespace NgeeAnnCity
         {
             buildingDict.Remove(new Point(row, column));
         }
-
         internal bool TouchingBorder(int row, int column)
         {
             int maxIndex = size - 1;
             return (row == 0 || row == maxIndex || column == 0 || column == maxIndex);
         }
-
         internal void ExpandGrid()
         {
             size += expansionSize * 2;
@@ -306,13 +280,15 @@ namespace NgeeAnnCity
                 buildingDict.Add(new Point(coords.X, coords.Y), building);
             }
         }
-
         internal int GetSize()
         {
             return size;
         }
-
-        private bool IsAdjacentToExistingBuilding(int row, int col) // to check if arcade buildings are placed adjacent to existing buildings
+        internal int GetMaxScreenSize()
+        {
+            return maxScreenSize;
+        }
+        internal bool IsAdjacentToExistingBuilding(int row, int col)
         {
             // Check orthogonal directions
             if (row > 0 && grid[row - 1, col] != '.') return true; // check up
@@ -328,48 +304,38 @@ namespace NgeeAnnCity
 
             return false;
         }
-
-
-
-        //arcade adjacent logic 
-        public bool IsAdjacentTo(int row, int col, char building)
+        internal bool IsAdjacentTo(int row, int col, char building)
         {
 
             return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building);
         }
-
-        public bool FreePlayIsAdjacentTo(int row, int col, char building)
+        internal bool FreePlayIsAdjacentTo(int row, int col, char building)
         {
 
             return IsOrthogonallyAdjacent(row, col, building) || IsDiagonallyAdjacentTo(row, col, building) || IsConnectedViaRoadSpec(row, col, building);
         }
-
-        public bool IsOrthogonallyAdjacent(int row, int col, char building) //a check function to check if buildings are orthogonally adjacent to a specific building type
+        internal bool IsOrthogonallyAdjacent(int row, int col, char building)
         {
             return (row > 0 && GetBuilding(row - 1, col) == building) ||  //Up
                    (row < size - 1 && GetBuilding(row + 1, col) == building) || //Down
                    (col > 0 && GetBuilding(row, col - 1) == building) ||  //Left
                    (col < size - 1 && GetBuilding(row, col + 1) == building);   //Right
         }
-
-
-        public bool IsDiagonallyAdjacentTo(int row, int col, char building) //a check function to check if buildings are diagonally adjacent to a specific building type
+        internal bool IsDiagonallyAdjacentTo(int row, int col, char building)
         {
             return (row > 0 && col > 0 && GetBuilding(row - 1, col - 1) == building) || // Up-Left
                    (row > 0 && col < size - 1 && GetBuilding(row - 1, col + 1) == building) || // Up-Right
                    (row < size - 1 && col > 0 && GetBuilding(row + 1, col - 1) == building) || // Down-Left
                    (row < size - 1 && col < size - 1 && GetBuilding(row + 1, col + 1) == building); // Down-Right
         }
-
-        public int CountAdjacentRow(int row, int col, char building) //check adjacent rows, mainly for road
+        internal int CountAdjacentRow(int row, int col, char building)
         {
             int count = 0;
             if (col > 0 && GetBuilding(row, col - 1) == building) count++; // check left
             if (col < size - 1 && GetBuilding(row, col + 1) == building) count++; // check right
             return count;
         }
-
-        public int CountAdjacent(int row, int col, char building) // count the number of the specified building type adjacent to the current building
+        internal int CountAdjacent(int row, int col, char building)
         {
             int count = 0;
 
@@ -387,9 +353,7 @@ namespace NgeeAnnCity
 
             return count;
         }
-
-        //freeplay count adjacent 
-        public int CountAdjacentFreePlay(int row, int col, char building) // count the number of the specified building type adjacent to the current building
+        internal int CountAdjacentFreePlay(int row, int col, char building)
         {
             int count = 0;
             bool[][] visited = new bool[size][];
@@ -413,7 +377,7 @@ namespace NgeeAnnCity
             count += CountConnectedViaRoad(row, col, size, building, visited);
             return count;
         }
-        public int CountConnectedViaRoad(int row, int col, int size, char building, bool[][] visited)
+        internal int CountConnectedViaRoad(int row, int col, int size, char building, bool[][] visited)
         {
             int callCount = 1;
             // Skip the first building and start counting in the recursive function
@@ -453,9 +417,7 @@ namespace NgeeAnnCity
 
             return foundCount;
         }
-
-        // for specified building road connection, 1 time count
-        public bool IsConnectedViaRoadSpec(int row, int col, char building)
+        internal bool IsConnectedViaRoadSpec(int row, int col, char building)
         {
             int count = 0; // to skip the first recursion, the starting cell
             bool[][] visited = new bool[size][];
@@ -466,8 +428,7 @@ namespace NgeeAnnCity
 
             return IsConnectedViaRoadRecSpec(row, col, visited, count, building);
         }
-
-        public bool IsConnectedViaRoadRecSpec(int row, int col, bool[][] visited, int count, char building)
+        internal bool IsConnectedViaRoadRecSpec(int row, int col, bool[][] visited, int count, char building)
         {
             if (row < 0 || row >= size || col < 0 || col >= size || visited[row][col])
             {
@@ -490,55 +451,62 @@ namespace NgeeAnnCity
                    IsConnectedViaRoadRecSpec(row + 1, col - 1, visited, count, building) || // Down-Left
                    IsConnectedViaRoadRecSpec(row + 1, col + 1, visited, count, building);   // Down-Right
         }
-
-
-
-        public bool isGridFull()
+        internal bool isGridFull()
         {
-            for (int row = 0; row < size; row++)
-            {
-                for (int col = 0; col < size; col++)
-                {
-                    if (GetBuilding(row, col) == '.')
-                    {
-                        return false;   //board contains an empty cell
-                    }
-                }
-            }
-            return true;    //board no longer has an empty cell for a building to be constructed
+            return buildingDict.Count == size * size;    //board is full.
         }
-        public bool isGridEmpty()
+        internal bool isGridEmpty()
         {
-            for (int row = 0; row < size; row++)
+            return buildingDict.Count == 0;    //board does not contain a building.
+        }
+        internal void PanLeft()
+        {
+            startCol = startCol - maxScreenSize < 0 ? 0 : startCol - maxScreenSize;
+        }
+        internal void PanRight()
+        {
+            startCol = startCol + maxScreenSize > size - maxScreenSize ? size - maxScreenSize : startCol + maxScreenSize;
+        }
+        internal void PanUp()
+        {
+            startRow = startRow - maxScreenSize < 0 ? 0 : startRow - maxScreenSize;
+        }
+        internal void PanDown() 
+        {
+            startRow = startRow + maxScreenSize > size - maxScreenSize ? size - maxScreenSize : startRow + maxScreenSize;
+        }
+        internal void PanTo(int row, int col)
+        {
+            int halfScreenSize = (int) (Math.Ceiling((decimal) maxScreenSize / 2));
+            row++; // incremented because it was decremented for placebuilding();
+            col++;
+
+            startRow = row - halfScreenSize;
+            startCol = col - halfScreenSize;
+
+            if (startRow < 0)
             {
-                for (int col = 0; col < size; col++)
-                {
-                    if (GetBuilding(row, col) == 'R' || GetBuilding(row, col) == 'I' ||
-                        GetBuilding(row, col) == 'C' || GetBuilding(row, col) == 'O' ||
-                        GetBuilding(row, col) == '*')
-                    {
-                        return false;   //board already contains a building
-                    }
-                }
+                startRow = 0;
+            } 
+            else if (startRow + maxScreenSize > size)
+            {
+                startRow = size - maxScreenSize;
+            } 
+            
+            if (startCol < 0)
+            {
+                startCol = 0;
+            } 
+            else if (startCol + maxScreenSize > size) 
+            {
+                startCol = size - maxScreenSize;
             }
-            return true;    //board does not contain a building.
+        }
+        private static string CenterString(String s, int width)
+        {
+            string padding = new string(' ', (int)Math.Floor((double)(width - s.Length) / 2));
+            return padding + s + padding;
         }
 
-        public int ConstructOrDemolish()
-        {
-            Console.WriteLine("Construct/Demolish a building (1/2):");
-            Console.WriteLine("1. Construct");
-            Console.WriteLine("2. Demolish");
-            int choice;
-            while (true)
-            {
-                if (int.TryParse(Console.ReadLine(), out choice) && (choice == 1 || choice == 2  || choice == 3))
-                {
-                    break;
-                }
-                else { Console.WriteLine("Invalid choice. Please select 1 or 2:"); }
-            }
-            return choice;
-        }
     }
 }
