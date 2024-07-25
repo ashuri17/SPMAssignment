@@ -1,18 +1,20 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Drawing;
+using System.Runtime.ExceptionServices;
 using System.Security.Cryptography.X509Certificates;
 
 namespace NgeeAnnCity
 {
     public class FreePlayGame
     {
-        public Board board {get; set;}
-        public int coins {get; set;}
-        public int points {get; set;}
-        public int profit {get; set;}
-        public int upkeep {get; set;}
-        public int turn {get; set;}
-        public int endGameTurns {get; set;}
+        public Board board { get; set; }
+        public int coins { get; set; }
+        public int points { get; set; }
+        public int profit { get; set; }
+        public int upkeep { get; set; }
+        public int turn { get; set; }
+        public int endGameTurns { get; set; }
         public int firstRow = 0;
         public int firstCol = 0;
         public int maxScreenSize = 25;
@@ -25,7 +27,7 @@ namespace NgeeAnnCity
             upkeep = 0;
             turn = 1;
             endGameTurns = 0;
-            board = new Board(5);
+            board = new Board(100, 25);
         }
 
         public void Start()
@@ -38,45 +40,13 @@ namespace NgeeAnnCity
         {
             while (true)
             {
-                DisplayScreen();
-                if (board.GetSize() > maxScreenSize)
+                if (board.GetSize() > board.GetMaxScreenSize())
                 {
-                    while (true)
-                    {
-                        Console.WriteLine("Pan Map (1) or Place Building (2): ");
-                        string? choice = Console.ReadLine();
-
-                        if (string.IsNullOrEmpty(choice) || !"12".Contains(choice.ToUpper()) || choice.Length != 1)
-                        {
-                            Console.WriteLine("Invalid choice, try again.");
-                            continue;
-                        }
-
-                        if (choice == "2")
-                        {
-                            break;
-                        }
-
-                        PanBoard();
-                        DisplayScreen();
-                    }
-                }
-                int buildingAction = board.ConstructOrDemolish();
-                if (buildingAction == 1)    //construct option
+                    HandleActionWithPan();
+                } 
+                else
                 {
-                    char building = GetUserBuilding();
-                    board.PlaceBuilding(building, turn, true);
-                }
-                else if (buildingAction == 2)   //demolish option
-                {
-                    if (board.isGridEmpty())
-                    {
-                        Console.WriteLine("Board consists of no buildings.");
-                        Console.WriteLine("Press any key to return...");
-                        Console.ReadKey();
-                        continue;
-                    }
-                    board.DemolishBuilding();
+                    HandleAction();
                 }
                 else if (buildingAction == 3)
                 {
@@ -86,17 +56,22 @@ namespace NgeeAnnCity
                 }
                 turn++;
                 UpdateScoresandFinances();
+
                 //Game ends when profit < upkeep for 20 turns
                 if (EndGame())
                 {
                     endGameTurns++;
-                    if (endGameTurns == 2)
+                    if (endGameTurns == 10)
                     {
                         DisplayEndGame();
                         break;
                     }
                 }
-                else { endGameTurns = 0; }  // resets end game turns back to 0 when profit is greater than upkeep during one turn
+                else 
+                {
+                    // resets end game turns back to 0 when profit is greater than upkeep during one turn
+                    endGameTurns = 0; 
+                }  
             }
         }
 
@@ -160,7 +135,6 @@ namespace NgeeAnnCity
                 }
             }
         }
-
         private int CalculateResidentialScore(int row, int col)
         {
             int points = 0;
@@ -172,23 +146,18 @@ namespace NgeeAnnCity
             points += board.CountAdjacentFreePlay(row, col, 'R') + board.CountAdjacentFreePlay(row, col, 'C') + 2 * board.CountAdjacentFreePlay(row, col, 'O');
             return points;
         }
-
-
         private int CalculateCommercialScore(int row, int col)
         {
             return board.CountAdjacentFreePlay(row, col, 'C');
         }
-
         private int CalculateParkScore(int row, int col)
         {
             return board.CountAdjacentFreePlay(row, col, 'O');
         }
-
         private int CalculateRoadScore(int row, int col)
         {
             return board.CountAdjacentRow(row, col, '*');
         }
-
         private void DisplayInfo()
         {
             Console.WriteLine(new string('-', 10) + "FREEPLAY MODE" + new string('-', 10) + "\n");
@@ -198,7 +167,6 @@ namespace NgeeAnnCity
             Console.WriteLine($"Profit: {profit}");
             Console.WriteLine($"Upkeep: {upkeep}\n");
         }
-
         private void MarkCluster(int row, int col, char building, bool[,] visited)
         {
             Queue<(int, int)> queue = new Queue<(int, int)>();
@@ -229,7 +197,6 @@ namespace NgeeAnnCity
                 }
             }
         }
-
         private char GetUserBuilding()
         {
             while (true)
@@ -239,22 +206,16 @@ namespace NgeeAnnCity
 
                 if (string.IsNullOrEmpty(choice) || !"RICO*".Contains(choice.ToUpper()) || choice.Length != 1)
                 {
-                    Console.WriteLine("Invalid choice, try again.");
+                    Console.Write("Invalid choice. ");
                     continue;
                 }
                 return char.Parse(choice.ToUpper());
             }
         }
-
         private bool EndGame()
         {
-            if (profit < upkeep)
-            {
-                return true;
-            }
-            return false;
+            return profit < upkeep;
         }
-
         private void DisplayEndGame()
         {
             Console.Clear();
@@ -282,10 +243,9 @@ namespace NgeeAnnCity
             Console.ReadKey();
             EditHighScores();
         }
-
         private void EditHighScores()
         {
-            List<(string name, int score)> highScoresList = new List<(string name, int score)>();
+            List<(string name, int score)> highScoresList = new();
 
             string[] freeplayHighScores = File.ReadAllLines("./freeplayhighscores.csv").Skip(1).ToArray();
 
@@ -324,54 +284,159 @@ namespace NgeeAnnCity
             Console.WriteLine("Enter anything to continue");
             Console.ReadKey();
         }
-
         private void DisplayScreen()
         {
-            //Console.Clear();
+            Console.Clear();
             Console.WriteLine("\x1b[3J");
-            if (board.GetSize() < maxScreenSize)
-            {
-                board.Display(firstRow, firstCol, board.GetSize());
-            }
-            else
-            {
-                board.Display(firstRow, firstCol, maxScreenSize);
-
-            }
+            board.DisplayBoard();
             DisplayInfo();
         }
-
-        private void PanBoard()
+        private void HandleAction()
         {
-            char? direction;
+            int choice;
+
+            while (true)
+            {
+                DisplayScreen();
+                Console.WriteLine("1 - Construct, 2 - Demolish");
+
+                if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2))
+                {
+                    continue;
+                }
+
+                if (choice == 1)
+                {
+                    ConstructBuilding();
+                }
+                else
+                {
+                    if (!DemolishBuilding())
+                    {
+                        continue;
+                    }
+                }
+                break;
+            }
+        }
+        private void HandleActionWithPan()
+        {
+            char? action;
             bool end = false;
 
             while (!end)
             {
                 DisplayScreen();
-                Console.WriteLine("w - Up, a - Left, s - Down, d - Right, q - Quit");
+                Console.WriteLine("1 - Construct, 2 - Deconstruct");
+                Console.WriteLine("w - Up, a - Left, s - Down, d - Right");
 
-                direction = Console.ReadKey().KeyChar;
-                switch (direction)
+                action = Console.ReadKey().KeyChar;
+                switch (action)
                 {
+                    case '1':
+                        Console.WriteLine();
+                        ConstructBuilding();
+                        end = true;
+                        break;
+                    case '2':
+                        Console.WriteLine();
+                        if (DemolishBuilding()) {
+                            end= true;
+                        }
+                        break;
                     case 'w':
-                        firstRow = firstRow - maxScreenSize < 0 ? 0 : firstRow - maxScreenSize; // 0 = 0 - 25 < 0 ? 0 : 0 - 25
+                        board.PanUp();
                         break;
                     case 'a':
-                        firstCol = firstCol - maxScreenSize < 0 ? 0 : firstCol - maxScreenSize;
+                        board.PanLeft();
                         break;
                     case 's':
-                        firstRow = firstRow + maxScreenSize > board.GetSize() - maxScreenSize ? board.GetSize() - maxScreenSize : firstRow + maxScreenSize; // 0 = 0 + 25 > 15 ? 15 : 25 => 15
+                        board.PanDown();
                         break;
                     case 'd':
-                        firstCol = firstCol + maxScreenSize > board.GetSize() - maxScreenSize ? board.GetSize() - maxScreenSize : firstCol + maxScreenSize;
-                        break;
-                    case 'q':
-                        end = true;
+                        board.PanRight();
                         break;
                     default:
                         break;
                 }
+            }
+        }
+        private void ConstructBuilding()
+        {
+            char building = GetUserBuilding();
+            PlaceBuilding(building);
+        }
+        private Boolean DemolishBuilding()
+        {
+            if (board.isGridEmpty())
+            {
+                Console.WriteLine("Board consists of no buildings.");
+                Console.WriteLine("Press any key to return...");
+                Console.ReadKey();
+                return false;
+            }
+            board.DemolishBuilding();
+            return true;
+        }
+        private void PlaceBuilding(char building)
+        {
+            int x, y;
+            int size = board.GetSize();
+
+            // runs until a building is placed
+            while (true)
+            {
+                // get row from user
+                while (true)
+                {
+                    Console.Write($"Row (1-{size}): ");
+
+                    // check if user enters a number that falls within the width of the board
+                    if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
+                    {
+                        Console.Write($"Invalid row. ");
+                        continue;
+                    }
+                    break;
+                }
+
+                // get column from user 
+                while (true)
+                {
+                    Console.Write($"Column (1-{size}): ");
+
+                    // check if user enters a number that falls within the height of the board
+                    if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
+                    {
+                        Console.Write($"Invalid column. ");
+                        continue;
+                    }
+                    break;
+                }
+
+                x--;
+                y--;
+
+                // check if spot is taken
+                if (board.GetBuilding(x, y) != '.')
+                {
+                    Console.WriteLine("Spot taken.\n");
+                    continue;
+                }
+                else
+                {
+                    board.PlaceBuilding(building, x, y);
+                    if (board.TouchingBorder(x, y))
+                    {
+                        board.ExpandGrid();
+                        board.PanTo(x + board.GetExpansionSize(), y + board.GetExpansionSize());
+                    } 
+                    else
+                    {
+                        board.PanTo(x, y);
+                    }
+                }
+                break;
             }
         }
     }
