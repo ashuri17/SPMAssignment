@@ -48,12 +48,6 @@ namespace NgeeAnnCity
                 {
                     HandleAction();
                 }
-                else if (buildingAction == 3)
-                {
-                    FreePlaySaveFile newSave = new FreePlaySaveFile(this, "FreePlay");
-                    newSave.CreateJsonFile();
-                    Console.WriteLine("Sucessfully saved file");
-                }
                 turn++;
                 UpdateScoresandFinances();
 
