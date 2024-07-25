@@ -8,15 +8,22 @@ using System.Threading.Tasks;
 
 namespace NgeeAnnCity
 {
-    internal class Board
+    public class Board
     {
-        private int size;
+        public int size {get; set;}
         private char[,] grid;
+        public char[] nestedGridForJson {get; set;}
         private Dictionary<Point, char> buildingDict;
         private int startRow = 0;
         private int startCol = 0;
         private int maxScreenSize;
         private const int expansionSize = 5;
+      
+        public List<KeyValuePair<Point, char>> serializedBuildingDict
+        {
+          get { return buildingDict.ToList(); }
+          set { buildingDict= value.ToDictionary(x => x.Key, x => x.Value); }
+        }
 
         public Board(int size, int maxScreenSize)
         {
@@ -102,17 +109,18 @@ namespace NgeeAnnCity
 
                 // grid label on the left
                 Console.Write($"{i + 1}".PadLeft(horizontalPadding) + "  ");
-
+              
                 for (int j = startCol; j < startCol + width; j++)
                 {
+                    SetBackgroundColor(grid[i, j]);
                     Console.Write(grid[i, j] + " ");
                 }
+
 
                 if (i == middle && canPanRight)
                 {
                     Console.Write(" > "); 
                 }
-
                 Console.WriteLine();
             }
 
@@ -125,7 +133,33 @@ namespace NgeeAnnCity
             }
             Console.WriteLine("\n\n");
         }
-        private char[][] GetGridLabels(int startCol = 1, int width = 20)
+
+        private void SetBackgroundColor(char building)
+        {
+            switch (building)
+            {
+                case 'R':
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    break;
+                case 'I':
+                    Console.BackgroundColor = ConsoleColor.White;
+                    break;
+                case 'C':
+                    Console.BackgroundColor = ConsoleColor.DarkMagenta;
+                    break;
+                case 'O':
+                    Console.BackgroundColor = ConsoleColor.DarkCyan;
+                    break;
+                case '*':
+                    Console.BackgroundColor = ConsoleColor.DarkGray;
+                    break;
+                default:
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    break;
+            }
+        }
+
+        private char[][] GetGridLabels(int startCol = 1, int width = 20) 
         {
             int endCol = startCol + width - 1; // Adjust to include the correct range
 

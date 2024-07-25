@@ -7,13 +7,13 @@ namespace NgeeAnnCity
 {
     public class Arcade
     {
-        private int profit;
-        private Board board;
-        private int turn;
-        private int coins;
-        private int points;
-        private string[] buildings;
-        private Random random;
+        public int profit { get; set; }
+        public Board board { get; set; }
+        public int turn { get; set; }
+        public int coins { get; set; }
+        public int points { get; set; }
+        public string[] buildings { get; set; }
+        public Random random { get; set; }
 
         public Arcade()
         {
@@ -31,7 +31,7 @@ namespace NgeeAnnCity
             PlayGame();
         }
 
-        private void PlayGame()
+        public void PlayGame()
         {
             while (coins > 0 && !board.isGridFull())   //end game conditions
             {
@@ -149,6 +149,7 @@ namespace NgeeAnnCity
             if (board.IsAdjacentTo(row, col, 'I')) // industry buildings only count once
             {
                 points += 1;
+                return points;
             }
             points += board.CountAdjacent(row, col, 'R') + board.CountAdjacent(row, col, 'C') + 2 * board.CountAdjacent(row, col, 'O');
             return points;
@@ -240,9 +241,9 @@ namespace NgeeAnnCity
             while (true)
             {
                 DisplayScreen();
-                Console.WriteLine("1 - Construct, 2 - Demolish");
+                Console.WriteLine("1 - Construct, 2 - Demolish, 3 - Save");
 
-                if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2))
+                if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2 && choice != 3))
                 {
                     continue;
                 }
@@ -251,12 +252,18 @@ namespace NgeeAnnCity
                 {
                     ConstructBuilding();
                 }
-                else
+                else if (choice == 2)
                 {
                     if (!DemolishBuilding())
                     {
                         continue;
                     }
+                } 
+                else
+                {
+                    ArcadeSaveFile newSave = new ArcadeSaveFile(this, "Arcade");
+                    newSave.CreateJsonFile();
+                    Console.WriteLine("Sucessfully saved file");
                 }
                 break;
             }
