@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Channels;
 using NgeeAnnCity;
 
 
@@ -12,31 +13,26 @@ void StartNgeeAnnCity()
         MainMenu();
         Console.Write("\n\n\nPick option (1-5): ");
 
-        switch (Console.ReadLine())
+        switch (Console.ReadKey().KeyChar)
         {
-            case "1":
-                Console.ForegroundColor = ConsoleColor.Green;
+            case '1':
                 new Arcade().Start();
                 break;
 
-            case "2":
-                Console.ForegroundColor = ConsoleColor.Yellow;
+            case '2':
                 new FreePlayGame().Start();
                 break;
 
-            case "3":
-                Console.ForegroundColor = ConsoleColor.Blue;
+            case '3':
                 SaveFile.LoadScreen();
                 Console.WriteLine();
                 break;
 
-            case "4":
-                Console.ForegroundColor = ConsoleColor.Magenta;
+            case '4':
                 HighScores.Start();
                 break;
 
-            case "5":
-                Console.ForegroundColor = ConsoleColor.Red;
+            case '5':
                 Console.WriteLine("Exiting Ngee Ann City...");
                 Thread.Sleep(700);
                 Console.WriteLine("Goodbye!\n");
@@ -44,7 +40,8 @@ void StartNgeeAnnCity()
 
             default:
                 // User entered a number that is not valid as an option
-                Console.WriteLine("\nInvalid option");
+                Console.Clear();
+                Console.WriteLine("\x1b[3J");
                 break;
         }
     }
@@ -67,38 +64,11 @@ void MainMenu()
     string padding = new string(' ', (int)Math.Floor((double)(menuItems.Max(i => i.Length) - title.Length) / 2));
  
     // print title + menu
-    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.ForegroundColor = ConsoleColor.DarkYellow;
     Console.WriteLine(padding + title);
     Console.WriteLine(new string('-', menuItems.Max(i => i.Length)) + "\n");
-    Console.ResetColor();
-    menuItems.ForEach(i =>
-    {
-        SetMenuItemColor(i);
-        Console.WriteLine(i);
-        Console.ResetColor();
-    });
-}
+    Console.ForegroundColor = ConsoleColor.Green;
 
-void SetMenuItemColor(string menuItem)
-{
-    if (menuItem.Contains("Arcade"))
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-    }
-    else if (menuItem.Contains("Free Play"))
-    {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-    }
-    else if (menuItem.Contains("Saved Game"))
-    {
-        Console.ForegroundColor = ConsoleColor.Blue;
-    }
-    else if (menuItem.Contains("Highscores"))
-    {
-        Console.ForegroundColor = ConsoleColor.Magenta;
-    }
-    else if (menuItem.Contains("Exit"))
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-    }
+    menuItems.ForEach(i => Console.WriteLine(i));
+
 }

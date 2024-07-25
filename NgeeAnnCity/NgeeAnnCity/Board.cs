@@ -118,7 +118,7 @@ namespace NgeeAnnCity
               
                 for (int j = startCol; j < startCol + width; j++)
                 {
-                    SetBackgroundColor(grid[i, j]);
+                    SetForegroundColor(grid[i, j]);
                     Console.Write(grid[i, j] + " ");
                 }
 
@@ -140,27 +140,27 @@ namespace NgeeAnnCity
             Console.WriteLine("\n\n");
         }
 
-        private void SetBackgroundColor(char building)
+        private void SetForegroundColor(char building)
         {
             switch (building)
             {
                 case 'R':
-                    Console.BackgroundColor = ConsoleColor.Red;
+                    Console.ForegroundColor = ConsoleColor.White;
                     break;
                 case 'I':
-                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     break;
                 case 'C':
-                    Console.BackgroundColor = ConsoleColor.DarkMagenta;
+                    Console.ForegroundColor = ConsoleColor.Magenta;
                     break;
                 case 'O':
-                    Console.BackgroundColor = ConsoleColor.DarkCyan;
+                    Console.ForegroundColor = ConsoleColor.Cyan;
                     break;
                 case '*':
-                    Console.BackgroundColor = ConsoleColor.DarkGray;
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     break;
                 default:
-                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.Green;
                     break;
             }
         }
@@ -481,7 +481,10 @@ namespace NgeeAnnCity
                 return true;  // Found specified building
             }
             count += 1;
-            return IsConnectedViaRoadRecSpec(row - 1, col, visited, count, building) ||    // Up
+
+            if (count == 1 || grid[row, col] == '*')
+            {
+                return IsConnectedViaRoadRecSpec(row - 1, col, visited, count, building) ||    // Up
                    IsConnectedViaRoadRecSpec(row + 1, col, visited, count, building) ||    // Down
                    IsConnectedViaRoadRecSpec(row, col - 1, visited, count, building) ||    // Left
                    IsConnectedViaRoadRecSpec(row, col + 1, visited, count, building) ||    // Right
@@ -489,6 +492,8 @@ namespace NgeeAnnCity
                    IsConnectedViaRoadRecSpec(row - 1, col + 1, visited, count, building) || // Up-Right
                    IsConnectedViaRoadRecSpec(row + 1, col - 1, visited, count, building) || // Down-Left
                    IsConnectedViaRoadRecSpec(row + 1, col + 1, visited, count, building);   // Down-Right
+            }
+            return false;
         }
         internal bool isGridFull()
         {
