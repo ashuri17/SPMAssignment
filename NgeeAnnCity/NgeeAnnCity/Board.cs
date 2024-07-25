@@ -10,9 +10,15 @@ namespace NgeeAnnCity
 {
     public class Board
     {
-        private int size;
+        public int size {get; set;}
         private char[,] grid;
+        public char[] nestedGridForJson {get; set;}
         private Dictionary<Point, char> buildingDict;
+        public List<KeyValuePair<Point, char>> serializedBuildingDict
+    {
+        get { return buildingDict.ToList(); }
+        set { buildingDict= value.ToDictionary(x => x.Key, x => x.Value); }
+    }
         const int expansionSize = 5;
 
         public Board(int size)
@@ -500,7 +506,7 @@ namespace NgeeAnnCity
             int choice;
             while (true)
             {
-                if (int.TryParse(Console.ReadLine(), out choice) && (choice == 1 || choice == 2 ))
+                if (int.TryParse(Console.ReadLine(), out choice) && (choice == 1 || choice == 2  || choice == 3))
                 {
                     break;
                 }

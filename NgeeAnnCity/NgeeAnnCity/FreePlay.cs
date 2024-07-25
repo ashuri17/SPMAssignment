@@ -4,18 +4,18 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace NgeeAnnCity
 {
-    class FreePlayGame
+    public class FreePlayGame
     {
-        private Board board;
-        private int coins;
-        private int points;
-        private int profit;
-        private int upkeep;
-        private int turn;
-        private int endGameTurns;
-        private int firstRow = 0;
-        private int firstCol = 0;
-        private int maxScreenSize = 25;
+        public Board board {get; set;}
+        public int coins {get; set;}
+        public int points {get; set;}
+        public int profit {get; set;}
+        public int upkeep {get; set;}
+        public int turn {get; set;}
+        public int endGameTurns {get; set;}
+        public int firstRow = 0;
+        public int firstCol = 0;
+        public int maxScreenSize = 25;
 
         public FreePlayGame()
         {
@@ -77,6 +77,12 @@ namespace NgeeAnnCity
                         continue;
                     }
                     board.DemolishBuilding();
+                }
+                else if (buildingAction == 3)
+                {
+                    FreePlaySaveFile newSave = new FreePlaySaveFile(this, "FreePlay");
+                    newSave.CreateJsonFile();
+                    Console.WriteLine("Sucessfully saved file");
                 }
                 turn++;
                 UpdateScoresandFinances();

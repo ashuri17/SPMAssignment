@@ -1,4 +1,6 @@
-﻿using NgeeAnnCity;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using NgeeAnnCity;
 
 
 
@@ -21,6 +23,8 @@ void StartNgeeAnnCity()
                 break;
 
             case "3":
+                SaveFile.LoadScreen();
+                Console.WriteLine();
                 break;
 
             case "4":

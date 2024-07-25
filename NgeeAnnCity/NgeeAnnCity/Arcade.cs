@@ -6,13 +6,13 @@ namespace NgeeAnnCity
 {
     public class Arcade
     {
-        private int profit;
-        private Board board;
-        private int turn;
-        private int coins;
-        private int points;
-        private string[] buildings;
-        private Random random;
+        public int profit {get; set;}
+        public Board board {get; set;}
+        public int turn {get; set;}
+        public int coins {get; set;}
+        public int points {get; set;}
+        public string[] buildings {get; set;}
+        public Random random {get; set;}
 
         public Arcade()
         {
@@ -30,7 +30,7 @@ namespace NgeeAnnCity
             PlayGame();
         }
 
-        private void PlayGame()
+        public void PlayGame()
         {
             while (coins > 0 && !board.isGridFull())   //end game conditions
             {
@@ -61,6 +61,12 @@ namespace NgeeAnnCity
                         continue;
                     }
                     board.DemolishBuilding();
+                }
+                else if (buildingAction == 3)
+                {
+                    ArcadeSaveFile newSave = new ArcadeSaveFile(this, "Arcade");
+                    newSave.CreateJsonFile();
+                    Console.WriteLine("Sucessfully saved file");
                 }
 
                 // Update game state
