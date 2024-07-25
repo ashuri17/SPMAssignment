@@ -48,12 +48,7 @@ namespace NgeeAnnCity
                 {
                     HandleAction();
                 }
-                else if (buildingAction == 3)
-                {
-                    FreePlaySaveFile newSave = new FreePlaySaveFile(this, "FreePlay");
-                    newSave.CreateJsonFile();
-                    Console.WriteLine("Sucessfully saved file");
-                }
+
                 turn++;
                 UpdateScoresandFinances();
 
@@ -96,15 +91,12 @@ namespace NgeeAnnCity
                                 profit += 1;
                                 if (!visited[i, j])
                                 {
+                                    upkeep += 1;
                                     if (board.CountAdjacent(i, j, 'R') >= 1)  //checks for 'R' cluster exists
                                     {
                                         MarkCluster(i, j, 'R', visited);    //enters MarkCluster with the particular info
-                                        upkeep += 1;
                                     }
-                                    else
-                                    {
-                                        upkeep += 1;
-                                    }
+                                    
                                 }
                                 break;
                             case 'I':
@@ -138,11 +130,11 @@ namespace NgeeAnnCity
         private int CalculateResidentialScore(int row, int col)
         {
             int points = 0;
-            if (board.FreePlayIsAdjacentTo(row, col, 'I'))
+            if (board.IsAdjacentTo(row, col, 'I'))
             {
                 points += 1;
                 return points;
-            }
+            } 
             points += board.CountAdjacentFreePlay(row, col, 'R') + board.CountAdjacentFreePlay(row, col, 'C') + 2 * board.CountAdjacentFreePlay(row, col, 'O');
             return points;
         }
