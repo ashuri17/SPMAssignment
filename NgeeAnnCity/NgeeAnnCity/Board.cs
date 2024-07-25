@@ -61,15 +61,41 @@ namespace NgeeAnnCity
             {
                 // grid label on the left
                 Console.Write($"{i + 1}".PadLeft(verticalPadding) + "  ");
-
+ 
                 for (int j = startCol; j < startCol + width; j++)
                 {
+                    SetBackgroundColor(grid[i, j]);
                     Console.Write(grid[i, j] + " ");
                 }
-
+            
                 Console.WriteLine();
             }
             Console.WriteLine("\n\n");
+        }
+
+        private void SetBackgroundColor(char building)
+        {
+            switch (building)
+            {
+                case 'R':
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    break;
+                case 'I':
+                    Console.BackgroundColor = ConsoleColor.White;
+                    break;
+                case 'C':
+                    Console.BackgroundColor = ConsoleColor.DarkMagenta;
+                    break;
+                case 'O':
+                    Console.BackgroundColor = ConsoleColor.DarkCyan;
+                    break;
+                case '*':
+                    Console.BackgroundColor = ConsoleColor.DarkGray;
+                    break;
+                default:
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    break;
+            }
         }
 
         private char[][] GetGridLabels(int startCol = 1, int width = 20) // 6, 31
