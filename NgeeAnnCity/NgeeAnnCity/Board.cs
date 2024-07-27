@@ -521,6 +521,13 @@ namespace NgeeAnnCity
         }
         internal void PanTo(int row, int col)
         {
+            if (size <= maxScreenSize)
+            {
+                startRow = 0;
+                startCol = 0;
+                return;
+            }
+
             int halfScreenSize = (int) (Math.Ceiling((decimal) maxScreenSize / 2));
             row++; // incremented because it was decremented for placebuilding();
             col++;
