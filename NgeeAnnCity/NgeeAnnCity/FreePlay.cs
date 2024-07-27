@@ -8,16 +8,25 @@ namespace NgeeAnnCity
 {
     public class FreePlayGame
     {
-        public Board board { get; set; }
-        public int coins { get; set; }
-        public int points { get; set; }
-        public int profit { get; set; }
-        public int upkeep { get; set; }
-        public int turn { get; set; }
-        public int endGameTurns { get; set; }
-        public int firstRow = 0;
-        public int firstCol = 0;
-        public int maxScreenSize = 25;
+        private Board board;
+        private int coins;
+        private int points;
+        private int profit;
+        private int upkeep;
+        private int turn;
+        private int endGameTurns;
+
+
+        public Board Board { get; set; }
+        public int Coins { get; set; }
+        public int Points { get; set; }
+        public int Profit { get; set; }
+        public int Upkeep { get; set; }
+        public int Turn { get; set; }
+        public int EndGameTurns { get; set; }
+
+
+
 
         public FreePlayGame()
         {
@@ -27,7 +36,7 @@ namespace NgeeAnnCity
             upkeep = 0;
             turn = 1;
             endGameTurns = 0;
-            board = new Board(100, 25);
+            board = new Board(5, 25);
         }
 
         public void Start()
@@ -422,7 +431,7 @@ namespace NgeeAnnCity
                         board.ExpandGrid();
                         board.PanTo(x + board.GetExpansionSize(), y + board.GetExpansionSize());
                     } 
-                    else
+                    else 
                     {
                         board.PanTo(x, y);
                     }

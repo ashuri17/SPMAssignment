@@ -1,6 +1,8 @@
 using System.Dynamic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Drawing;
 using Microsoft.VisualBasic;
 using NgeeAnnCity;
 
@@ -137,4 +139,10 @@ public class FreePlaySaveFile:SaveFile
             }
         } 
     }
+}
+
+
+public class PointCharDictionaryConverter : JsonConverter<Dictionary<Point,char>>
+{
+
 }

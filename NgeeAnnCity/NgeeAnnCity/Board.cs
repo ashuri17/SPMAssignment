@@ -12,31 +12,29 @@ namespace NgeeAnnCity
 {
     public class Board
     {
-        public int size {get; set;}
-        private char[,] grid;
-        public List<List<char>> gridList 
-        {
-            get{return gridList = ToNestedList(grid);}
-            set{grid = ToCharArray(gridList);}
-        }
         private Dictionary<Point, char> buildingDict;
+        private int size;
+        private char[,] grid;
         private int startRow = 0;
         private int startCol = 0;
         private int maxScreenSize;
-        private const int expansionSize = 5;
-      
-        public List<KeyValuePair<Point, char>> serializedBuildingDict
-            {
-          get { return buildingDict.ToList(); }
-          set { buildingDict= value.ToDictionary(x => x.Key, x => x.Value); }
-            }
+        private int expansionSize = 5;
+
+        public Dictionary<Point, char> BuildingDict { get { return this.buildingDict; } set { this.buildingDict = value; } }
+        public int Size { get { return this.size; } set { this.size = value; } }
+        public char[,] Grid { get { return this.grid;  } set { this.grid = value; } }
+        public int StartRow { get { return this.startRow; } set { this.startRow = value; } }
+        public int StartCol { get { return this.startCol; } set { this.startCol = value; } }
+        public int MaxScreenSize { get { return this.maxScreenSize; } set { this.maxScreenSize = value; } }
+        public int ExpansionSize { get { return this.expansionSize; } set { this.expansionSize = value; } }
+
 
         public Board(int size, int maxScreenSize)
         {
-            this.size = size;
-            this.maxScreenSize = maxScreenSize;
-            grid = new char[size, size];
-            buildingDict = new Dictionary<Point, char>();
+            Size = size;
+            MaxScreenSize = maxScreenSize;
+            Grid = new char[size, size];
+            BuildingDict = new Dictionary<Point, char>();
 
         }
         internal void Initialize()
@@ -139,7 +137,6 @@ namespace NgeeAnnCity
             }
             Console.WriteLine("\n\n");
         }
-
         private void SetForegroundColor(char building)
         {
             switch (building)
@@ -164,40 +161,6 @@ namespace NgeeAnnCity
                     break;
             }
         }
-        private List<List<char>> ToNestedList(char[,] array)
-        {
-            int rows = array.GetLength(0);
-            int cols = array.GetLength(1);
-            List<List<char>> nestedList = new();
-
-            for (int i = 0; i < rows; i++)
-            {
-                List<char> innerList = new();
-                for (int j = 0; j < cols; j++)
-                {
-                    innerList.Add(array[i, j]);
-                }
-                nestedList.Add(innerList);
-            }
-            return nestedList;
-        }
-        private char[,] ToCharArray(List<List<char>> nestedList)
-        {
-            int rows = nestedList.Count;
-            int cols = nestedList[0].Count; // Assuming all inner lists have the same length
-
-            char[,] array = new char[rows, cols];
-
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    array[i, j] = nestedList[i][j];
-                }
-            }
-            return array;
-        }
-
         private char[][] GetGridLabels(int startCol = 1, int width = 20) 
         {
             int endCol = startCol + width - 1; // Adjust to include the correct range
@@ -538,17 +501,17 @@ namespace NgeeAnnCity
             if (startRow < 0)
             {
                 startRow = 0;
-            } 
+            }
             else if (startRow + maxScreenSize > size)
             {
                 startRow = size - maxScreenSize;
-            } 
-            
+            }
+
             if (startCol < 0)
             {
                 startCol = 0;
-            } 
-            else if (startCol + maxScreenSize > size) 
+            }
+            else if (startCol + maxScreenSize > size)
             {
                 startCol = size - maxScreenSize;
             }

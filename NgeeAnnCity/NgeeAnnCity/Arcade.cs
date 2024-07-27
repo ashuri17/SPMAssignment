@@ -7,13 +7,19 @@ namespace NgeeAnnCity
 {
     public class Arcade
     {
-        public int profit { get; set; }
-        public Board board { get; set; }
-        public int turn { get; set; }
-        public int coins { get; set; }
-        public int points { get; set; }
-        public string[] buildings { get; set; }
-        public Random random { get; set; }
+        private Board board;
+        private int profit;
+        private int turn;
+        private int coins;
+        private int points;
+        private string[] buildings;
+
+        public Board Board { get { return this.board; } set { this.board = value; } }
+        public int Profit { get { return this.profit; } set { this.profit = value; } }
+        public int Turn { get { return this.turn; } set { this.turn = value; } }
+        public int Coins { get { return this.coins; } set { this.turn = value; } }
+        public int Points { get { return this.points; } set { this.points = value; } }
+        public string[] Buildings { get { return this.buildings; } set { this.buildings = value; } }
 
         public Arcade()
         {
@@ -22,7 +28,6 @@ namespace NgeeAnnCity
             coins = 16;
             points = 0;
             buildings = new string[] { "Residential", "Industry", "Commercial", "Park", "Road" };
-            random = new Random();
         }
 
         public void Start()
@@ -50,7 +55,7 @@ namespace NgeeAnnCity
             List<string> selectedBuildings = new List<string>();
             while (selectedBuildings.Count < 2)
             {
-                string building = buildings[random.Next(buildings.Length)];
+                string building = buildings[new Random().Next(buildings.Length)];
                 if (!selectedBuildings.Contains(building))
                 {
                     selectedBuildings.Add(building);
