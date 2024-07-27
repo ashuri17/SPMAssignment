@@ -22,7 +22,6 @@ namespace NgeeAnnCity
 
         public Dictionary<Point, char> BuildingDict { get { return this.buildingDict; } set { this.buildingDict = value; } }
         public int Size { get { return this.size; } set { this.size = value; } }
-        public char[,] Grid { get { return this.grid;  } set { this.grid = value; } }
         public int StartRow { get { return this.startRow; } set { this.startRow = value; } }
         public int StartCol { get { return this.startCol; } set { this.startCol = value; } }
         public int MaxScreenSize { get { return this.maxScreenSize; } set { this.maxScreenSize = value; } }
@@ -33,18 +32,27 @@ namespace NgeeAnnCity
         {
             Size = size;
             MaxScreenSize = maxScreenSize;
-            Grid = new char[size, size];
+            grid = new char[size, size];
             BuildingDict = new Dictionary<Point, char>();
 
         }
         internal void Initialize()
-        {
+        {   
             for (int i = 0; i < size; i++)
             {
                 for (int j = 0; j < size; j++)
                 {
                     grid[i, j] = '.';
                 }
+            }
+        }
+        internal void InitBuilding()
+        {
+            foreach (var buildingInfo in buildingDict.ToList())
+            {
+                Point coords = buildingInfo.Key;
+                char building = buildingInfo.Value;
+                grid[coords.X, coords.Y] = building;
             }
         }
         internal void DisplayBoard()

@@ -9,28 +9,26 @@ namespace NgeeAnnCity
     public class FreePlayGame
     {
         private Board board;
-        private int coins;
         private int points;
         private int profit;
         private int upkeep;
         private int turn;
         private int endGameTurns;
+        private bool breakCond = false;
 
 
-        public Board Board { get; set; }
-        public int Coins { get; set; }
-        public int Points { get; set; }
-        public int Profit { get; set; }
-        public int Upkeep { get; set; }
-        public int Turn { get; set; }
-        public int EndGameTurns { get; set; }
+        public Board Board { get { return this.board; } set { this.board = value; } }
+        public int Profit { get { return this.profit; } set { this.profit = value; } }
+        public int Turn { get { return this.turn; } set { this.turn = value; } }
+        public int Points { get { return this.points; } set { this.points = value; } }
+        public int Upkeep { get { return this.upkeep; } set { this.upkeep = value; } }
+        public int EndGameTurns { get { return this.endGameTurns; } set { this.endGameTurns = value; } }
 
 
 
 
         public FreePlayGame()
         {
-            coins = 0;
             points = 0;
             profit = 0;
             upkeep = 0;
@@ -41,12 +39,13 @@ namespace NgeeAnnCity
 
         public void Start()
         {
-            board.Initialize();
             PlayGame();
         }
 
         public void PlayGame()
         {
+            board.Initialize();
+            board.InitBuilding();
             while (true)
             {
                 if (board.GetSize() > board.GetMaxScreenSize())
@@ -59,7 +58,11 @@ namespace NgeeAnnCity
                 }
                 turn++;
                 UpdateScoresandFinances();
-
+                if (breakCond)
+                {
+                    Console.Clear();
+                    break;
+                }
                 //Game ends when profit < upkeep for 20 turns
                 if (EndGame())
                 {
@@ -162,7 +165,6 @@ namespace NgeeAnnCity
         {
             Console.WriteLine(new string('-', 10) + "FREEPLAY MODE" + new string('-', 10) + "\n");
             Console.WriteLine($"Turn: {turn}");
-            Console.WriteLine($"Coins: {coins}");
             Console.WriteLine($"Points: {points}");
             Console.WriteLine($"Profit: {profit}");
             Console.WriteLine($"Upkeep: {upkeep}\n");
@@ -298,9 +300,9 @@ namespace NgeeAnnCity
             while (true)
             {
                 DisplayScreen();
-                Console.WriteLine("1 - Construct, 2 - Demolish");
+                Console.WriteLine("1 - Construct, 2 - Demolish, 3- Save Game");
 
-                if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2))
+                if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2 && choice != 3))
                 {
                     continue;
                 }
@@ -309,12 +311,20 @@ namespace NgeeAnnCity
                 {
                     ConstructBuilding();
                 }
-                else
+                else if (choice == 2)
                 {
                     if (!DemolishBuilding())
                     {
                         continue;
                     }
+                }
+                else
+                {
+                    FreePlaySaveFile newSave = new FreePlaySaveFile(this, "Freeplay");
+                    newSave.CreateJsonFile();
+                    breakCond = true;
+                    Console.WriteLine("Sucessfully saved file.\nPress Any Key To Continue...");
+                    Console.ReadKey();
                 }
                 break;
             }
@@ -327,7 +337,7 @@ namespace NgeeAnnCity
             while (!end)
             {
                 DisplayScreen();
-                Console.WriteLine("1 - Construct, 2 - Deconstruct");
+                Console.WriteLine("1 - Construct, 2 - Deconstruct, 3- Save Game");
                 Console.WriteLine("w - Up, a - Left, s - Down, d - Right");
 
                 action = Console.ReadKey().KeyChar;
@@ -343,6 +353,15 @@ namespace NgeeAnnCity
                         if (DemolishBuilding()) {
                             end= true;
                         }
+                        break;
+                    case '3':
+                        Console.WriteLine();
+                        FreePlaySaveFile newSave = new FreePlaySaveFile(this, "Freeplay");
+                        newSave.CreateJsonFile();
+                        breakCond = true;
+                        Console.WriteLine("Sucessfully saved file.\nPress Any Key To Continue...");
+                        Console.ReadKey();
+                        end = true;
                         break;
                     case 'w':
                         board.PanUp();

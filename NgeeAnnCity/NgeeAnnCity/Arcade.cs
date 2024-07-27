@@ -13,13 +13,13 @@ namespace NgeeAnnCity
         private int coins;
         private int points;
         private string[] buildings;
+        private bool breakCond = false;
 
         public Board Board { get { return this.board; } set { this.board = value; } }
         public int Profit { get { return this.profit; } set { this.profit = value; } }
         public int Turn { get { return this.turn; } set { this.turn = value; } }
-        public int Coins { get { return this.coins; } set { this.turn = value; } }
+        public int Coins { get { return this.coins; } set { this.coins = value; } }
         public int Points { get { return this.points; } set { this.points = value; } }
-        public string[] Buildings { get { return this.buildings; } set { this.buildings = value; } }
 
         public Arcade()
         {
@@ -32,13 +32,14 @@ namespace NgeeAnnCity
 
         public void Start()
         {
-            board.Initialize();
             PlayGame();
         }
 
         public void PlayGame()
         {
-            while (coins > 0 && !board.isGridFull())   //end game conditions
+            board.Initialize();
+            board.InitBuilding();
+            while (coins > 0 && !board.isGridFull() && breakCond == false)   //end game conditions
             {
                 HandleAction();
                 coins -= 1;
@@ -47,7 +48,10 @@ namespace NgeeAnnCity
             }
             Console.Clear();
             Console.WriteLine("\x1b[3J");
-            DisplayEndGame();
+            if (!breakCond)
+            {
+                DisplayEndGame();
+            }
         }
 
         private List<string> SelectBuildings()
@@ -268,14 +272,15 @@ namespace NgeeAnnCity
                 {
                     ArcadeSaveFile newSave = new ArcadeSaveFile(this, "Arcade");
                     newSave.CreateJsonFile();
-                    Console.WriteLine("Sucessfully saved file");
+                    breakCond = true;
+                    Console.WriteLine("Sucessfully saved file.\nPress Any Key To Continue...");
+                    Console.ReadKey();
                 }
                 break;
             }
         }
         private void DisplayScreen()
         {
-            Console.Clear();
             Console.WriteLine("\x1b[3J");
             board.DisplayBoard();
             DisplayInfo();

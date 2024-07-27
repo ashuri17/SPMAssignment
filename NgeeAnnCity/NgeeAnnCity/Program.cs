@@ -8,6 +8,7 @@ using NgeeAnnCity;
 StartNgeeAnnCity();
 void StartNgeeAnnCity()
 {
+    bool gameModePick = false; // true = arcade, false = freeplay
     while (true)
     {
         MainMenu();
@@ -24,8 +25,30 @@ void StartNgeeAnnCity()
                 break;
 
             case '3':
-                SaveFile.LoadScreen();
-                Console.WriteLine();
+                while (true)
+                {
+                    Console.Write("\nFreeplay Files or Arcade Files (F or A): ");
+                    string fileLoadMode = Console.ReadLine();
+                    if (fileLoadMode.ToUpper() == "A")
+                    {
+                        gameModePick = true;
+                        SaveFile.LoadScreen(gameModePick);
+                        Console.WriteLine();
+                        break;
+
+                    }
+                    else if (fileLoadMode.ToUpper() == "F")
+                    {
+                        gameModePick= false;
+                        SaveFile.LoadScreen(gameModePick);
+                        Console.WriteLine();
+                        break;
+                    }
+                    else
+                    {
+                        Console.Write("Invalid Option. ");
+                    }
+                }
                 break;
 
             case '4':

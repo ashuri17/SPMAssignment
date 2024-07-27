@@ -1,29 +1,94 @@
-using System.Dynamic;
+using NgeeAnnCity;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Drawing;
-using Microsoft.VisualBasic;
-using NgeeAnnCity;
 
+public class PointCharDictionaryConverter : JsonConverter<Dictionary<Point, char>>
+{
+    public override Dictionary<Point, char> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var dictionary = new Dictionary<Point, char>();
+
+        if (reader.TokenType != JsonTokenType.StartObject)
+        {
+            throw new JsonException();
+        }
+
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndObject)
+            {
+                return dictionary;
+            }
+
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            string propertyName = reader.GetString();
+            var parts = propertyName.Split(',');
+            Point point = new Point(int.Parse(parts[0]), int.Parse(parts[1]));
+
+            reader.Read();
+            char value = reader.GetString()[0];
+
+            dictionary[point] = value;
+        }
+
+        throw new JsonException();
+    }
+
+    public override void Write(Utf8JsonWriter writer, Dictionary<Point, char> value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+
+        foreach (var kvp in value)
+        {
+            writer.WritePropertyName($"{kvp.Key.X},{kvp.Key.Y}");
+            writer.WriteStringValue(kvp.Value.ToString());
+        }
+
+        writer.WriteEndObject();
+    }
+}
 public class SaveFile
 {
     public DateTime SaveDateTime = DateTime.Now;
-    public int SaveID = Directory.GetFiles("saves").Count() + 1;
-    public string? SaveDesc {get; set;}
-
-    public static void LoadScreen()
+    public int ArcadeSaveID = Directory.GetFiles("ArcadeSave").Count() + 1;
+    public int FreeplaySaveID = Directory.GetFiles("FreeplaySave").Count() + 1;
+    public string? SaveDesc { get; set; }
+    public static bool IsArcade { get; set; } // arcade true, freeplay false
+    public static void LoadScreen(bool gameModePick)
     {
+        string[] saveFiles;
         // directory path for save files
-        string saveFilesDirectory = "saves";
+        if (gameModePick)
+        {
+            // get save files in directory
+            string saveFilesDirectory = "ArcadeSave";
+            saveFiles = Directory.GetFiles(saveFilesDirectory);
+            IsArcade = true;
+        }
+        else
+        {
+            // get save files in directory
+            string saveFilesDirectory = "FreeplaySave";
+            saveFiles = Directory.GetFiles(saveFilesDirectory);
+            IsArcade = false; 
+        }
 
-        // get save files in directory
-        string[] saveFiles = Directory.GetFiles(saveFilesDirectory);
 
         // check if directory is empty
         if (!saveFiles.Any())
         {
             Console.WriteLine("No save file available");
+            return;
         }
 
         // print save files for user to choose
@@ -31,9 +96,10 @@ public class SaveFile
         {
             Console.WriteLine($"[{i}] {saveFiles[i]}");
         }
-        GamemodeChecker(saveFiles);
+        GameParser(saveFiles);
     }
-    public static void GamemodeChecker(string[] saveFiles)
+
+    public static void GameParser(string[] saveFiles)
     {
         while (true)
         {
@@ -50,47 +116,48 @@ public class SaveFile
                 Console.WriteLine("That save file does not exist.");
                 continue;
             }
-            List<string> saveFileGameData = new();
-            using (StreamReader sr = new StreamReader(saveFiles[result]))
+            List<string> saveFileGameData = new(); 
+            string jsonString = File.ReadAllText(saveFiles[result]);
+            File.Delete(saveFiles[result]);
+            if (IsArcade)
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    saveFileGameData.Add(sr.ReadLine());
-                }
-            }
-            if (JsonSerializer.Deserialize<string>(saveFileGameData[2]) == "Arcade")
-            {
-                LoadArcade(saveFileGameData[0]).PlayGame();
-                break;
-            }
-            else if (JsonSerializer.Deserialize<string>(saveFileGameData[2]) == "FreePlay")
-            {
-                LoadFreePlay(saveFileGameData[0]).PlayGame();
+                LoadArcade(jsonString).PlayGame();
                 break;
             }
             else
             {
-                Console.WriteLine("An error has occured");
+                LoadFreePlay(jsonString).PlayGame();
+                break;
             }
         }
     }
 
     public static Arcade LoadArcade(string saveFile)
     {
-        Arcade loadedGameFile = JsonSerializer.Deserialize<Arcade>(saveFile);
-        return loadedGameFile;                                                                            
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new PointCharDictionaryConverter() },
+            WriteIndented = true
+        };
+        Arcade loadedGameFile = JsonSerializer.Deserialize<Arcade>(saveFile,options);
+        return loadedGameFile;
     }
 
     public static FreePlayGame LoadFreePlay(string saveFile)
     {
-        FreePlayGame loadedGameFile = JsonSerializer.Deserialize<FreePlayGame>(saveFile);
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new PointCharDictionaryConverter() },
+            WriteIndented = true
+        };
+        FreePlayGame loadedGameFile = JsonSerializer.Deserialize<FreePlayGame>(saveFile,options);
         return loadedGameFile;
     }
 }
 
-public class ArcadeSaveFile:SaveFile
+public class ArcadeSaveFile : SaveFile
 {
-    public Arcade GameData {get; set;}
+    public Arcade GameData { get; set; }
 
     public ArcadeSaveFile(Arcade gD, string sDesc)
     {
@@ -98,26 +165,31 @@ public class ArcadeSaveFile:SaveFile
         SaveDesc = sDesc;
     }
 
-    //Takes Arcade class object, appends additional required data to the end and converts values to a json to be stored in a file
+    // Takes Arcade class object, appends additional required data to the end and converts values to a json to be stored in a file
     public void CreateJsonFile()
     {
-        var gameDataJson = JsonSerializer.Serialize(GameData);
-        var timeStampJson = JsonSerializer.Serialize(SaveDateTime);
-        var saveDescJson = JsonSerializer.Serialize(SaveDesc);
-        var dataJson = new List<string>{gameDataJson, timeStampJson, saveDescJson};
-        using (StreamWriter sw = new StreamWriter($"saves\\save{SaveID}.json", false))  
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new PointCharDictionaryConverter() },
+            WriteIndented = true
+        };
+
+        var gameDataJson = JsonSerializer.Serialize(GameData, options);
+        var dataJson = new List<string> { gameDataJson };
+
+        using (StreamWriter sw = new StreamWriter($"ArcadeSave\\Arcade{ArcadeSaveID}.json", false))
         {
             foreach (string s in dataJson)
             {
                 sw.WriteLine(s);
             }
-        } 
+        }
     }
 }
 
-public class FreePlaySaveFile:SaveFile
+public class FreePlaySaveFile : SaveFile
 {
-    public FreePlayGame GameData {get; set;}
+    public FreePlayGame GameData { get; set; }
 
     public FreePlaySaveFile(FreePlayGame gD, string sDesc)
     {
@@ -127,22 +199,21 @@ public class FreePlaySaveFile:SaveFile
 
     public void CreateJsonFile()
     {
-        var gameDataJson = JsonSerializer.Serialize(GameData);
-        var timeStampJson = JsonSerializer.Serialize(SaveDateTime);
-        var saveDescJson = JsonSerializer.Serialize(SaveDesc);
-        var dataJson = new List<string>{gameDataJson, timeStampJson, saveDescJson};
-        using (StreamWriter sw = new StreamWriter($"saves\\save{SaveID}.json", false))  
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new PointCharDictionaryConverter() },
+            WriteIndented = true
+        };
+
+        var gameDataJson = JsonSerializer.Serialize(GameData, options);
+        var dataJson = new List<string> { gameDataJson };
+
+        using (StreamWriter sw = new StreamWriter($"FreeplaySave\\Freeplay{FreeplaySaveID}.json", false))
         {
             foreach (string s in dataJson)
             {
                 sw.WriteLine(s);
             }
-        } 
+        }
     }
-}
-
-
-public class PointCharDictionaryConverter : JsonConverter<Dictionary<Point,char>>
-{
-
 }
