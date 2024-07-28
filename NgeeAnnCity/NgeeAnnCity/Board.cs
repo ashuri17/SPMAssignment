@@ -60,6 +60,7 @@ namespace NgeeAnnCity
             int width;
             Boolean canPanLeft = false;
             Boolean canPanRight = false;
+            Console.ForegroundColor = ConsoleColor.White;
 
             if (size < maxScreenSize)
             {
@@ -112,6 +113,7 @@ namespace NgeeAnnCity
 
                 if (i == middle && canPanLeft)
                 {
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Write(" < ");   
                 } 
                 else
@@ -131,9 +133,11 @@ namespace NgeeAnnCity
 
                 if (i == middle && canPanRight)
                 {
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Write(" > "); 
                 }
                 Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.White;
             }
 
             // check if user can pan down
@@ -150,7 +154,7 @@ namespace NgeeAnnCity
             switch (building)
             {
                 case 'R':
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Cyan;
                     break;
                 case 'I':
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -159,7 +163,7 @@ namespace NgeeAnnCity
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     break;
                 case 'O':
-                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.ForegroundColor = ConsoleColor.Green;
                     break;
                 case '*':
                     Console.ForegroundColor = ConsoleColor.Gray;

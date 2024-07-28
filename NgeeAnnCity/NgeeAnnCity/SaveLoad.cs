@@ -62,39 +62,36 @@ public class SaveFile
     public DateTime SaveDateTime = DateTime.Now;
     public int ArcadeSaveID = Directory.GetFiles("ArcadeSave").Count() + 1;
     public int FreeplaySaveID = Directory.GetFiles("FreeplaySave").Count() + 1;
+    internal static string currentFile;
     public string? SaveDesc { get; set; }
-    public static bool IsArcade { get; set; } // arcade true, freeplay false
-    public static void LoadScreen(bool gameModePick)
+    public static bool IsArcade { get; set; } 
+    public static void LoadScreen(bool isArcade)
     {
         string[] saveFiles;
+        IsArcade = isArcade;
+
         // directory path for save files
-        if (gameModePick)
+        if (isArcade)
         {
             // get save files in directory
             string saveFilesDirectory = "ArcadeSave";
             saveFiles = Directory.GetFiles(saveFilesDirectory);
-            IsArcade = true;
         }
         else
         {
             // get save files in directory
             string saveFilesDirectory = "FreeplaySave";
             saveFiles = Directory.GetFiles(saveFilesDirectory);
-            IsArcade = false; 
         }
 
-
-        // check if directory is empty
-        if (!saveFiles.Any())
-        {
-            Console.WriteLine("No save file available");
-            return;
-        }
 
         // print save files for user to choose
         for (int i = 0; i < saveFiles.Length; i++)
         {
-            Console.WriteLine($"[{i}] {saveFiles[i]}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($"[{i + 1}] ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(saveFiles[i]);
         }
         GameParser(saveFiles);
     }
@@ -103,7 +100,7 @@ public class SaveFile
     {
         while (true)
         {
-            Console.WriteLine("\nEnter the number corresponding to the saved game: ");
+            Console.Write("\nEnter the number corresponding to the saved game: ");
 
             if (!int.TryParse(Console.ReadLine(), out int result))
             {
@@ -118,7 +115,8 @@ public class SaveFile
             }
             List<string> saveFileGameData = new(); 
             string jsonString = File.ReadAllText(saveFiles[result]);
-            File.Delete(saveFiles[result]);
+            currentFile = saveFiles[result];
+
             if (IsArcade)
             {
                 LoadArcade(jsonString).PlayGame();
@@ -176,8 +174,18 @@ public class ArcadeSaveFile : SaveFile
 
         var gameDataJson = JsonSerializer.Serialize(GameData, options);
         var dataJson = new List<string> { gameDataJson };
+        string path = "";
 
-        using (StreamWriter sw = new StreamWriter($"ArcadeSave\\Arcade{ArcadeSaveID}.json", false))
+        if (currentFile != null)
+        {
+            path = currentFile;
+        } 
+        else
+        {
+            path = $"ArcadeSave\\Arcade{ArcadeSaveID}.json";
+        }
+
+        using (StreamWriter sw = new StreamWriter(path, false))
         {
             foreach (string s in dataJson)
             {
@@ -207,8 +215,18 @@ public class FreePlaySaveFile : SaveFile
 
         var gameDataJson = JsonSerializer.Serialize(GameData, options);
         var dataJson = new List<string> { gameDataJson };
+        string path = "";
 
-        using (StreamWriter sw = new StreamWriter($"FreeplaySave\\Freeplay{FreeplaySaveID}.json", false))
+        if (currentFile != null)
+        {
+            path = currentFile;
+        }
+        else
+        {
+            path = $"FreeplaySave\\Freeplay{FreeplaySaveID}.json";
+        }
+
+        using (StreamWriter sw = new StreamWriter(path, false))
         {
             foreach (string s in dataJson)
             {

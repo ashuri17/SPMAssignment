@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.ExceptionServices;
@@ -300,7 +301,18 @@ namespace NgeeAnnCity
             while (true)
             {
                 DisplayScreen();
-                Console.WriteLine("1 - Construct, 2 - Demolish, 3- Save Game");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[1] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Construct, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[2] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Demolish, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[3] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Save: ");
 
                 if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2 && choice != 3))
                 {
@@ -323,7 +335,10 @@ namespace NgeeAnnCity
                     FreePlaySaveFile newSave = new FreePlaySaveFile(this, "Freeplay");
                     newSave.CreateJsonFile();
                     breakCond = true;
-                    Console.WriteLine("Sucessfully saved file.\nPress Any Key To Continue...");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("[INFO]");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("Sucessfully saved file.\nPress any key to continue...");
                     Console.ReadKey();
                 }
                 break;
@@ -337,9 +352,36 @@ namespace NgeeAnnCity
             while (!end)
             {
                 DisplayScreen();
-                Console.WriteLine("1 - Construct, 2 - Deconstruct, 3- Save Game");
-                Console.WriteLine("w - Up, a - Left, s - Down, d - Right");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[1] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Construct, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[2] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Demolish, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[3] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Save");
 
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[w] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("UP, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[a] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("LEFT, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[s] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("DOWN ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[d] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("RIGHT");
+                
                 action = Console.ReadKey().KeyChar;
                 switch (action)
                 {
@@ -359,7 +401,10 @@ namespace NgeeAnnCity
                         FreePlaySaveFile newSave = new FreePlaySaveFile(this, "Freeplay");
                         newSave.CreateJsonFile();
                         breakCond = true;
-                        Console.WriteLine("Sucessfully saved file.\nPress Any Key To Continue...");
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.Write("[INFO] ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("Sucessfully saved file.\nPress any key to continue...");
                         Console.ReadKey();
                         end = true;
                         break;
@@ -389,6 +434,9 @@ namespace NgeeAnnCity
         {
             if (board.isGridEmpty())
             {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("[ERROR] ");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Board consists of no buildings.");
                 Console.WriteLine("Press any key to return...");
                 Console.ReadKey();
@@ -408,12 +456,23 @@ namespace NgeeAnnCity
                 // get row from user
                 while (true)
                 {
-                    Console.Write($"Row (1-{size}): ");
+                    Console.Write($"Row (");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("1");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" - ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"{size}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("): ");
 
                     // check if user enters a number that falls within the width of the board
                     if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
                     {
-                        Console.Write($"Invalid row. ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"[ERROR] ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("Invalid row.\n");
                         continue;
                     }
                     break;
@@ -422,12 +481,23 @@ namespace NgeeAnnCity
                 // get column from user 
                 while (true)
                 {
-                    Console.Write($"Column (1-{size}): ");
+                    Console.Write($"Column (");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("1");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" - ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"{size}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("): ");
 
                     // check if user enters a number that falls within the height of the board
                     if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
                     {
-                        Console.Write($"Invalid column. ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"[ERROR] ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("Invalid column.\n");
                         continue;
                     }
                     break;
@@ -439,7 +509,10 @@ namespace NgeeAnnCity
                 // check if spot is taken
                 if (board.GetBuilding(x, y) != '.')
                 {
-                    Console.WriteLine("Spot taken.\n");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"[ERROR] ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("Spot taken.\n");
                     continue;
                 }
                 else

@@ -71,16 +71,37 @@ namespace NgeeAnnCity
         {
             int choice;
 
-            for (int i = 0; i < selectedBuildings.Count; i++)
+            while (true)
             {
-                Console.WriteLine($"{i + 1}. {selectedBuildings[i]}");
-            }
+                for (int i = 0; i < selectedBuildings.Count; i++)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"[{i + 1}] ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"{selectedBuildings[i]}");
+                    if (i + 1 == selectedBuildings.Count)
+                    {
+                        Console.Write(": ");
+                    }
+                    else
+                    {
+                        Console.Write(", ");
+                    }
+                }
 
-            while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > selectedBuildings.Count)
-            {
-                Console.Write("Invalid choice. Please select 1 or 2:");
-            }
-            return GetBuildingSymbol(selectedBuildings[choice - 1]);
+                if (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > selectedBuildings.Count)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red  ;
+                    Console.Write("[ERROR] ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("Invalid choice.\n");
+                    
+                } 
+                else
+                {
+                    return GetBuildingSymbol(selectedBuildings[choice - 1]);
+                }
+            }   
         }
         private char GetBuildingSymbol(string building)
         {
@@ -246,44 +267,62 @@ namespace NgeeAnnCity
         private void HandleAction()
         {
             int choice;
+            bool end = false;
 
-            while (true)
+            while (!end)
             {
                 DisplayScreen();
-                Console.WriteLine("1 - Construct, 2 - Demolish, 3 - Save");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[1] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Construct, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[2] ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Demolish, ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("[3] ");
+                Console.ForegroundColor = ConsoleColor.White; 
+                Console.Write("Save: ");
 
-                if (!int.TryParse(Console.ReadLine(), out choice) || (choice != 1 && choice != 2 && choice != 3))
-                {
-                    continue;
-                }
+                char option = Console.ReadKey().KeyChar;
+                Console.WriteLine();
 
-                if (choice == 1)
+                switch (option)
                 {
-                    ConstructBuilding();
+                    case '1':
+                        ConstructBuilding();
+                        end = true;
+                        break;
+
+                    case '2':
+                        DemolishBuilding();
+                        end = true;
+                        break;
+
+                    case '3':
+                        end = true;
+                        breakCond = true;
+                        ArcadeSaveFile newSave = new ArcadeSaveFile(this, "Arcade");
+                        newSave.CreateJsonFile();
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.WriteLine("[INFO] ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine("Sucessfully saved file. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+
+                    default:
+                        break;
                 }
-                else if (choice == 2)
-                {
-                    if (!DemolishBuilding())
-                    {
-                        continue;
-                    }
-                } 
-                else
-                {
-                    ArcadeSaveFile newSave = new ArcadeSaveFile(this, "Arcade");
-                    newSave.CreateJsonFile();
-                    breakCond = true;
-                    Console.WriteLine("Sucessfully saved file.\nPress Any Key To Continue...");
-                    Console.ReadKey();
-                }
-                break;
             }
         }
         private void DisplayScreen()
         {
-            Console.WriteLine("\x1b[3J");
+            ClearScreen();
             board.DisplayBoard();
             DisplayInfo();
+            Console.WriteLine("\n\n");
         }
         private void ConstructBuilding()
         {
@@ -291,17 +330,15 @@ namespace NgeeAnnCity
             char building = GetPlayerChoice(buildings);
             PlaceBuilding(building);
         }
-        private Boolean DemolishBuilding()
+        private void DemolishBuilding()
         {
             if (board.isGridEmpty())
             {
                 Console.WriteLine("Board consists of no buildings.");
                 Console.WriteLine("Press any key to return...");
                 Console.ReadKey();
-                return false;
             }
             board.DemolishBuilding();
-            return true;
         }
         private void PlaceBuilding(char building)
         {
@@ -314,28 +351,48 @@ namespace NgeeAnnCity
                 // get row from user
                 while (true)
                 {
-                    Console.Write($"Row (1-{size}): ");
+                    Console.Write($"Row (");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("1");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" - ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"{size}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("): ");
 
                     // check if user enters a number that falls within the width of the board
                     if (!int.TryParse(Console.ReadLine(), out x) || x < 1 || x > size)
                     {
-                        Console.Write($"Invalid row. ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"[ERROR] ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("Invalid row.\n");
                         continue;
                     }
                     break;
                 }
 
-                Console.WriteLine();
-
                 // get column from user 
                 while (true)
                 {
-                    Console.Write($"Column (1-{size}): ");
+                    Console.Write($"Column (");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("1");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" - ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"{size}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("): ");
 
                     // check if user enters a number that falls within the height of the board
                     if (!int.TryParse(Console.ReadLine(), out y) || y < 1 || y > size)
                     {
-                        Console.Write($"Invalid column. ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"[ERROR] ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("Invalid column.\n");
                         continue;
                     }
                     break;
@@ -347,12 +404,18 @@ namespace NgeeAnnCity
                 // check if spot is taken
                 if (board.GetBuilding(x, y) != '.')
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"[ERROR] ");
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("Spot taken.\n");
                     continue;
                 }
                 //check if buildings in arcade are placed adjacent to existing buildings
                 else if (!board.isGridEmpty() && !board.IsAdjacentToExistingBuilding(x, y))
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"[ERROR] ");
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("Building must be placed adjacent to an existing building.\n");
                     continue;
                 }
@@ -362,6 +425,11 @@ namespace NgeeAnnCity
                 }
                 break;
             }
+        }
+        void ClearScreen()
+        {
+            Console.Clear();
+            Console.WriteLine("\x1b[3J");
         }
     }
 }

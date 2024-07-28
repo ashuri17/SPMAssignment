@@ -8,51 +8,103 @@ using NgeeAnnCity;
 StartNgeeAnnCity();
 void StartNgeeAnnCity()
 {
-    bool gameModePick = false; // true = arcade, false = freeplay
+    // Does nothing if dir exists
+    Directory.CreateDirectory("ArcadeSave");
+    Directory.CreateDirectory("FreePlaySave");
+
+    Console.ForegroundColor = ConsoleColor.White;
+    Console.BackgroundColor = ConsoleColor.Black;
+    Console.Clear();
+
     while (true)
     {
         MainMenu();
         Console.Write("\n\n\nPick option (1-5): ");
-
-        switch (Console.ReadKey().KeyChar)
+        char option = Console.ReadKey().KeyChar;
+        Console.WriteLine();
+        switch (option)
         {
             case '1':
                 new Arcade().Start();
+                ClearScreen();
                 break;
 
             case '2':
                 new FreePlayGame().Start();
+                ClearScreen();
                 break;
 
             case '3':
-                while (true)
+                bool end = false;
+                while (!end)
                 {
-                    Console.Write("\nFreeplay Files or Arcade Files (F or A): ");
-                    string fileLoadMode = Console.ReadLine();
-                    if (fileLoadMode.ToUpper() == "A")
-                    {
-                        gameModePick = true;
-                        SaveFile.LoadScreen(gameModePick);
-                        Console.WriteLine();
-                        break;
+                    ClearScreen();
+                    Console.Write("\nFreeplay ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("[f]");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("/ Arcade ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("[a]");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(": ");
 
-                    }
-                    else if (fileLoadMode.ToUpper() == "F")
+                    char choice = Console.ReadKey().KeyChar;
+                    Console.WriteLine("\n\n");
+
+                    switch (choice)
                     {
-                        gameModePick= false;
-                        SaveFile.LoadScreen(gameModePick);
-                        Console.WriteLine();
-                        break;
-                    }
-                    else
-                    {
-                        Console.Write("Invalid Option. ");
+                        case 'a':
+                            end = true;
+
+                            if (Directory.GetFiles("ArcadeSave").Length == 0)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                Console.Write("[INFO] ");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.WriteLine("No Arcade save file.\n");
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                            } 
+                            else
+                            {
+                                ClearScreen();
+                                SaveFile.LoadScreen(true);
+                            }
+                            
+                            break;
+
+                        case 'f':
+                            end = true;
+
+                            if (Directory.GetFiles("FreePlaySave").Length == 0)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                Console.Write("[INFO] ");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.WriteLine("No Freeplay save file.\n");
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                            }
+                            else
+                            {
+                                ClearScreen();
+                                SaveFile.LoadScreen(false);
+                            }
+                            break;
+
+                        default: 
+                            Console.Write("Invalid Option. ");
+                            break;
                     }
                 }
+                ClearScreen();
                 break;
 
             case '4':
+                ClearScreen();
                 HighScores.Start();
+                ClearScreen();
                 break;
 
             case '5':
@@ -63,11 +115,16 @@ void StartNgeeAnnCity()
 
             default:
                 // User entered a number that is not valid as an option
-                Console.Clear();
-                Console.WriteLine("\x1b[3J");
+                ClearScreen();
                 break;
         }
     }
+}
+
+void ClearScreen()
+{
+    Console.Clear();
+    Console.WriteLine("\x1b[3J");
 }
 
 void MainMenu()
@@ -77,21 +134,25 @@ void MainMenu()
  
     // add items into menu
     List<string> menuItems = [];
-    menuItems.Add("1. New Arcade Game");
-    menuItems.Add("2. New Free Play Game");
-    menuItems.Add("3. Load Saved Game");
-    menuItems.Add("4. Display Highscores");
-    menuItems.Add("5. Exit App");
+    menuItems.Add("New Arcade Game");
+    menuItems.Add("New Free Play Game");
+    menuItems.Add("Load Saved Game");
+    menuItems.Add("Display Highscores");
+    menuItems.Add("Exit App");
  
     // get padding to center title when printing
     string padding = new string(' ', (int)Math.Floor((double)(menuItems.Max(i => i.Length) - title.Length) / 2));
  
     // print title + menu
-    Console.ForegroundColor = ConsoleColor.DarkYellow;
+    Console.ForegroundColor = ConsoleColor.White;
     Console.WriteLine(padding + title);
     Console.WriteLine(new string('-', menuItems.Max(i => i.Length)) + "\n");
-    Console.ForegroundColor = ConsoleColor.Green;
-
-    menuItems.ForEach(i => Console.WriteLine(i));
-
+    
+    for (int i = 1; i <= menuItems.Count; i++)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write($"[{i}] ");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(menuItems[i - 1]);
+    }
 }

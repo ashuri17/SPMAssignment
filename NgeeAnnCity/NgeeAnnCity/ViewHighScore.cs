@@ -8,13 +8,12 @@ namespace NgeeAnnCity
         public static void Start()
         {
             ViewArcade();
-            Console.WriteLine();
-            Console.WriteLine();
+            Console.WriteLine("\n\n\n");
+            
             ViewFreePlay();
-            Console.WriteLine("Press any key to exit...");
+            Console.WriteLine("\n\n\n");
+            Console.Write("Press any key to exit... ");
             Console.ReadKey();
-            Console.Clear();
-            Console.WriteLine("\x1b[3J");
         }
         public static void ViewArcade()
         {
